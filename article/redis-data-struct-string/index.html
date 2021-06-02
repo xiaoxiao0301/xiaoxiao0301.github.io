@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-flat-top.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.jixiaoxiao.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="键值结构 是一个简单的key-value形式， value最多可以容纳的数据长度是512M">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis数据结构篇之字符串篇">
+<meta property="og:url" content="https://www.jixiaoxiao.com/article/redis-data-struct-string/index.html">
+<meta property="og:site_name" content="The Station Agent">
+<meta property="og:description" content="键值结构 是一个简单的key-value形式， value最多可以容纳的数据长度是512M">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-02-24T09:26:54.000Z">
+<meta property="article:modified_time" content="2021-06-01T04:26:44.096Z">
+<meta property="article:author" content="Xiao xiao">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.jixiaoxiao.com/article/redis-data-struct-string/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>redis数据结构篇之字符串篇 | The Station Agent</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">The Station Agent</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">心灵驿站</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/xiaoxiao0301" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.jixiaoxiao.com/article/redis-data-struct-string/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/user.png">
+      <meta itemprop="name" content="Xiao xiao">
+      <meta itemprop="description" content="一个phper的技术栈与生活站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="The Station Agent">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis数据结构篇之字符串篇
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-02-24 17:26:54" itemprop="dateCreated datePublished" datetime="2021-02-24T17:26:54+08:00">2021-02-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-01 12:26:44" itemprop="dateModified" datetime="2021-06-01T12:26:44+08:00">2021-06-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/database/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="键值结构"><a href="#键值结构" class="headerlink" title="键值结构"></a>键值结构</h2><ul>
+<li>是一个简单的key-value形式，</li>
+<li>value最多可以容纳的数据长度是512M</li>
+</ul>
+<h2 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h2><h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><blockquote>
+<p>set key value</p>
+</blockquote>
+<ul>
+<li>设置key-value,不管key是否存在都会设置</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="setnx"><a href="#setnx" class="headerlink" title="setnx"></a>setnx</h3><blockquote>
+<p>setnx key value</p>
+</blockquote>
+<ul>
+<li>key不存在才会设置值</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="set-xx"><a href="#set-xx" class="headerlink" title="set xx"></a>set xx</h3><blockquote>
+<p>set key value xx</p>
+</blockquote>
+<ul>
+<li>key存在才会设置值,会覆盖原来的值</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="set-ex"><a href="#set-ex" class="headerlink" title="set ex"></a>set ex</h3><blockquote>
+<p>set key value ex second</p>
+</blockquote>
+<ul>
+<li>设置key多少秒后过期，过期后key会被自动删除</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="get"><a href="#get" class="headerlink" title="get"></a>get</h3><blockquote>
+<p>get key</p>
+</blockquote>
+<ul>
+<li>获取key对应的value</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="del"><a href="#del" class="headerlink" title="del"></a>del</h3><blockquote>
+<p>del key</p>
+</blockquote>
+<ul>
+<li>删除key-value</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="incr"><a href="#incr" class="headerlink" title="incr"></a>incr</h3><blockquote>
+<p>incr key</p>
+</blockquote>
+<ul>
+<li>key的值自增1，如果key不存在，自增后key的值为1</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="decr"><a href="#decr" class="headerlink" title="decr"></a>decr</h3><blockquote>
+<p>decr key</p>
+</blockquote>
+<ul>
+<li>key的值自减1，如果key不存在，自减后key的值为-1</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="incrby"><a href="#incrby" class="headerlink" title="incrby"></a>incrby</h3><blockquote>
+<p>incrby key number</p>
+</blockquote>
+<ul>
+<li>key的值增加number，如果key不存在，自增后key的值为number</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="decrby"><a href="#decrby" class="headerlink" title="decrby"></a>decrby</h3><blockquote>
+<p>decrby key number</p>
+</blockquote>
+<ul>
+<li>key的值自减number，如果key不存在，自减后key的值为-number</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="mget"><a href="#mget" class="headerlink" title="mget"></a>mget</h3><blockquote>
+<p>mget key1 key2 key3 …</p>
+</blockquote>
+<ul>
+<li>批量获取key，原子操作</li>
+<li>时间复杂度:O(n)</li>
+</ul>
+<h3 id="mset"><a href="#mset" class="headerlink" title="mset"></a>mset</h3><blockquote>
+<p>mset key1 value1 key2 value2 …</p>
+</blockquote>
+<ul>
+<li>批量设置key-value</li>
+<li>时间复杂度:O(n)</li>
+</ul>
+<h3 id="getset"><a href="#getset" class="headerlink" title="getset"></a>getset</h3><blockquote>
+<p>getset key newvalue</p>
+</blockquote>
+<ul>
+<li>设置key的值为newvalue，返回key原来的值</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="append"><a href="#append" class="headerlink" title="append"></a>append</h3><blockquote>
+<p>append key value</p>
+</blockquote>
+<ul>
+<li>将value追加到旧的value</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="strlen"><a href="#strlen" class="headerlink" title="strlen"></a>strlen</h3><blockquote>
+<p>strlen key</p>
+</blockquote>
+<ul>
+<li>返回字符串的长度，使用时需要注意中文</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="incrbyfloat"><a href="#incrbyfloat" class="headerlink" title="incrbyfloat"></a>incrbyfloat</h3><blockquote>
+<p>incrbyfloat key floatNumber</p>
+</blockquote>
+<ul>
+<li>key的值增加floatNumber，如果key不存在，自增后key的值为floatNumber</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="getrange"><a href="#getrange" class="headerlink" title="getrange"></a>getrange</h3><blockquote>
+<p>getrange key [start end]</p>
+</blockquote>
+<ul>
+<li>获取字符串指定下标的所有值，需要注意左边下标是从0开始，右边是从-1开始</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h3 id="setrange"><a href="#setrange" class="headerlink" title="setrange"></a>setrange</h3><blockquote>
+<p>setrange key index value</p>
+</blockquote>
+<ul>
+<li>设置指定下标对应的值</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ul>
+<li>缓存</li>
+<li>计数器</li>
+<li>分布式锁</li>
+</ul>
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><h3 id="set-get"><a href="#set-get" class="headerlink" title="set-get"></a>set-get</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 设置key-value</span><br><span class="line">127.0.0.1:6379&gt; set k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># k2不存在才会被设置    </span><br><span class="line">127.0.0.1:6379&gt; setnx k2 v3</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k2</span><br><span class="line">&quot;v3&quot;</span><br><span class="line"># k2已存在设置新值失败了</span><br><span class="line">127.0.0.1:6379&gt; setnx k2 v2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k2</span><br><span class="line">&quot;v3&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># k2已存在并且被修改了新值</span><br><span class="line">127.0.0.1:6379&gt; set k2 v3 xx</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k2</span><br><span class="line">&quot;v3&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># k3不存在    </span><br><span class="line">127.0.0.1:6379&gt; set k3 v3 xx</span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 设置k4 12秒后过期</span><br><span class="line">127.0.0.1:6379&gt; set k4 v4 ex 12</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl k4</span><br><span class="line">(integer) 9</span><br><span class="line">127.0.0.1:6379&gt; get k4</span><br><span class="line">(nil) ， 此时k4已过期</span><br></pre></td></tr></table></figure>
+<h3 id="incrbyfloat-1"><a href="#incrbyfloat-1" class="headerlink" title="incrbyfloat"></a>incrbyfloat</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># f1 增加 0.5</span><br><span class="line">127.0.0.1:6379&gt; incrbyfloat f1 0.5</span><br><span class="line">&quot;0.5&quot;</span><br><span class="line">127.0.0.1:6379&gt; get f1</span><br><span class="line">&quot;0.5&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="del-1"><a href="#del-1" class="headerlink" title="del"></a>del</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 删除f1</span><br><span class="line">127.0.0.1:6379&gt; del f1</span><br><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+<h3 id="incr-decr-decrby"><a href="#incr-decr-decrby" class="headerlink" title="incr-decr-decrby"></a>incr-decr-decrby</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># 增加与减少数字 incr incrby decr decrby</span><br><span class="line">127.0.0.1:6379&gt; set kn1 100</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get kn1</span><br><span class="line">&quot;100&quot;</span><br><span class="line">127.0.0.1:6379&gt; incr kn1</span><br><span class="line">(integer) 101</span><br><span class="line">127.0.0.1:6379&gt; get kn1</span><br><span class="line">&quot;101&quot;</span><br><span class="line">127.0.0.1:6379&gt; incrby kn1 200</span><br><span class="line">(integer) 301</span><br><span class="line">127.0.0.1:6379&gt; get kn1</span><br><span class="line">&quot;301&quot;</span><br><span class="line">127.0.0.1:6379&gt; decr kn1</span><br><span class="line">(integer) 300</span><br><span class="line">127.0.0.1:6379&gt; get kn1</span><br><span class="line">&quot;300&quot;</span><br><span class="line">127.0.0.1:6379&gt; decrby kn1 150</span><br><span class="line">(integer) 150</span><br><span class="line">127.0.0.1:6379&gt; get kn1</span><br><span class="line">&quot;150&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="getset-1"><a href="#getset-1" class="headerlink" title="getset"></a>getset</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#getset    </span><br><span class="line">127.0.0.1:6379&gt; getset s2 abcd</span><br><span class="line">(nil)</span><br><span class="line">127.0.0.1:6379&gt; get s2</span><br><span class="line">&quot;abcd&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="strlen-1"><a href="#strlen-1" class="headerlink" title="strlen"></a>strlen</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#strlen 字符串长度</span><br><span class="line">127.0.0.1:6379&gt; set s1 abcdefghijklmn</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get s1</span><br><span class="line">&quot;abcdefghijklmn&quot;</span><br><span class="line">127.0.0.1:6379&gt; strlen s1</span><br><span class="line">(integer) 14</span><br><span class="line">127.0.0.1:6379&gt; set s3 哈哈</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get s3</span><br><span class="line">&quot;\xe5\x93\x88\xe5\x93\x88&quot;</span><br><span class="line">127.0.0.1:6379&gt; strlen s3</span><br><span class="line">(integer) 6</span><br></pre></td></tr></table></figure>
+<h3 id="setrange-getrange"><a href="#setrange-getrange" class="headerlink" title="setrange-getrange"></a>setrange-getrange</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#setrange getrange 字符串索引设置</span><br><span class="line">127.0.0.1:6379&gt; get s1</span><br><span class="line">&quot;abcdefghijklmn&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange s1 0 -1</span><br><span class="line">&quot;abcdefghijklmn&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange s1 0 2</span><br><span class="line">&quot;abc&quot;</span><br><span class="line">127.0.0.1:6379&gt; setrange s1 0 q</span><br><span class="line">(integer) 14</span><br><span class="line">127.0.0.1:6379&gt; get s1</span><br><span class="line">&quot;qbcdefghijklmn&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="mget-mset"><a href="#mget-mset" class="headerlink" title="mget-mset"></a>mget-mset</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"># 设置与获取多个key的值</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt; get k2</span><br><span class="line">&quot;v3&quot;</span><br><span class="line">127.0.0.1:6379&gt; get k3</span><br><span class="line">(nil)</span><br><span class="line">127.0.0.1:6379&gt; set k3 v2</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set k4 v4</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget k1 k2 k3 k4</span><br><span class="line">1) &quot;v1&quot;</span><br><span class="line">2) &quot;v3&quot;</span><br><span class="line">3) &quot;v2&quot;</span><br><span class="line">4) &quot;v4&quot;</span><br><span class="line">127.0.0.1:6379&gt; mset k5 v5 k6 v6 k7 v7</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget k5 k6 k7</span><br><span class="line">1) &quot;v5&quot;</span><br><span class="line">2) &quot;v6&quot;</span><br><span class="line">3) &quot;v7&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="append-1"><a href="#append-1" class="headerlink" title="append"></a>append</h3><h2 id=""><a href="#" class="headerlink" title=""></a><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 追加 append</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt; append k1 va</span><br><span class="line">(integer) 4</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1va&quot;</span><br></pre></td></tr></table></figure></h2>
+    </div>
+
+     <div>
+          
+            <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+          
+     </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>如果，我的文章帮助到您了，求打赏</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wepay.png" alt="Xiao xiao 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Xiao xiao 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Xiao xiao
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.jixiaoxiao.com/article/redis-data-struct-string/" title="redis数据结构篇之字符串篇">https://www.jixiaoxiao.com/article/redis-data-struct-string/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/redis/" rel="tag"><i class="fa fa-tag"></i> redis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/redis-base-config-file/" rel="prev" title="redis入门篇之命令与配置文件篇">
+      <i class="fa fa-chevron-left"></i> redis入门篇之命令与配置文件篇
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/redis-base-common-command/" rel="next" title="redis基础篇之通用命令篇">
+      redis基础篇之通用命令篇 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%AE%E5%80%BC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">键值结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">相关命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#set"><span class="nav-number">2.1.</span> <span class="nav-text">set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#setnx"><span class="nav-number">2.2.</span> <span class="nav-text">setnx</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#set-xx"><span class="nav-number">2.3.</span> <span class="nav-text">set xx</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#set-ex"><span class="nav-number">2.4.</span> <span class="nav-text">set ex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get"><span class="nav-number">2.5.</span> <span class="nav-text">get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#del"><span class="nav-number">2.6.</span> <span class="nav-text">del</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#incr"><span class="nav-number">2.7.</span> <span class="nav-text">incr</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#decr"><span class="nav-number">2.8.</span> <span class="nav-text">decr</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#incrby"><span class="nav-number">2.9.</span> <span class="nav-text">incrby</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#decrby"><span class="nav-number">2.10.</span> <span class="nav-text">decrby</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mget"><span class="nav-number">2.11.</span> <span class="nav-text">mget</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mset"><span class="nav-number">2.12.</span> <span class="nav-text">mset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getset"><span class="nav-number">2.13.</span> <span class="nav-text">getset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#append"><span class="nav-number">2.14.</span> <span class="nav-text">append</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#strlen"><span class="nav-number">2.15.</span> <span class="nav-text">strlen</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#incrbyfloat"><span class="nav-number">2.16.</span> <span class="nav-text">incrbyfloat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getrange"><span class="nav-number">2.17.</span> <span class="nav-text">getrange</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#setrange"><span class="nav-number">2.18.</span> <span class="nav-text">setrange</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98"><span class="nav-number">4.</span> <span class="nav-text">实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#set-get"><span class="nav-number">4.1.</span> <span class="nav-text">set-get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#incrbyfloat-1"><span class="nav-number">4.2.</span> <span class="nav-text">incrbyfloat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#del-1"><span class="nav-number">4.3.</span> <span class="nav-text">del</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#incr-decr-decrby"><span class="nav-number">4.4.</span> <span class="nav-text">incr-decr-decrby</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getset-1"><span class="nav-number">4.5.</span> <span class="nav-text">getset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#strlen-1"><span class="nav-number">4.6.</span> <span class="nav-text">strlen</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#setrange-getrange"><span class="nav-number">4.7.</span> <span class="nav-text">setrange-getrange</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mget-mset"><span class="nav-number">4.8.</span> <span class="nav-text">mget-mset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#append-1"><span class="nav-number">4.9.</span> <span class="nav-text">append</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">1
+2
+3
+4
+5
+6
+7
+# 追加 append
+127.0.0.1:6379&gt; get k1
+&quot;v1&quot;
+127.0.0.1:6379&gt; append k1 va
+(integer) 4
+127.0.0.1:6379&gt; get k1
+&quot;v1va&quot;
+</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xiao xiao"
+      src="/images/user.png">
+  <p class="site-author-name" itemprop="name">Xiao xiao</p>
+  <div class="site-description" itemprop="description">一个phper的技术栈与生活站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoxiao0301" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoxiao0301" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:simplexiaoxiao@gmail.com" title="E-Mail → mailto:simplexiaoxiao@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xiao xiao</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script src="/js/love.js"></script>
+</body>
+</html>

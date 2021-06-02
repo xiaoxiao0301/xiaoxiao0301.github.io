@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-flat-top.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.jixiaoxiao.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="ip参考">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP">
+<meta property="og:url" content="https://www.jixiaoxiao.com/article/http/index.html">
+<meta property="og:site_name" content="The Station Agent">
+<meta property="og:description" content="ip参考">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://z3.ax1x.com/2021/03/19/6RzeDU.png">
+<meta property="og:image" content="https://img.imgdb.cn/item/60546201524f85ce29196125.jpg">
+<meta property="og:image" content="https://img.imgdb.cn/item/6054595f524f85ce2914181a.png">
+<meta property="og:image" content="https://img.imgdb.cn/item/605807fa8322e6675c51f1f3.png">
+<meta property="og:image" content="https://img.imgdb.cn/item/60580b198322e6675c53b822.jpg">
+<meta property="og:image" content="https://img.imgdb.cn/item/60580d058322e6675c55869e.jpg">
+<meta property="og:image" content="https://img.imgdb.cn/item/60580ce78322e6675c555dab.jpg">
+<meta property="og:image" content="https://img.imgdb.cn/item/60585dc58322e6675c8463a6.jpg">
+<meta property="og:image" content="https://img.imgdb.cn/item/60596a9d8322e6675c0f5ab4.jpg">
+<meta property="og:image" content="https://img.imgdb.cn/item/60545fc4524f85ce2917ed20.jpg">
+<meta property="og:image" content="https://img.imgdb.cn/item/60595f4b8322e6675c0845d6.jpg">
+<meta property="article:published_time" content="2021-03-15T08:37:31.000Z">
+<meta property="article:modified_time" content="2021-06-01T04:26:44.181Z">
+<meta property="article:author" content="Xiao xiao">
+<meta property="article:tag" content="http">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/03/19/6RzeDU.png">
+
+<link rel="canonical" href="https://www.jixiaoxiao.com/article/http/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>HTTP | The Station Agent</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">The Station Agent</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">心灵驿站</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/xiaoxiao0301" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.jixiaoxiao.com/article/http/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/user.png">
+      <meta itemprop="name" content="Xiao xiao">
+      <meta itemprop="description" content="一个phper的技术栈与生活站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="The Station Agent">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HTTP
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-15 16:37:31" itemprop="dateCreated datePublished" datetime="2021-03-15T16:37:31+08:00">2021-03-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-01 12:26:44" itemprop="dateModified" datetime="2021-06-01T12:26:44+08:00">2021-06-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/network/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="ip"><a href="#ip" class="headerlink" title="ip"></a>ip</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/29287795">参考</a></p>
+<p>​      IP协议（Internet Protocol，互联网协议），是TCP/IP协议栈中最核心的协议之一，通过IP地址，保证了联网设备的唯一性，实现了网络通信的面向无连接和不可靠的传输功能。</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/6RzeDU"><img src="https://z3.ax1x.com/2021/03/19/6RzeDU.png" alt="6RzeDU.png"></a></p>
+<p><strong>Version（版本号）：</strong>标识IP协议的版本，目前V4版本地址已经枯竭，V6慢慢成为主流。</p>
+<p><strong>Header Length（头部长度）</strong>：默认为20字节，最大为60字节。</p>
+<p><strong>Differentiated Services Field （服务区分符）</strong>：用于为不同的IP数据包定义不同的服务质量，一般应用在QoS技术中。</p>
+<p><strong>Total Length （总长度）：</strong>标识IP头部加上上层数据的数据包大小，IP包总长度最大为65535个字节。</p>
+<p><strong>Identification （标识符）：</strong>用来实现IP分片的重组，标识分片属于哪个进程，不同进程通过不同ID区分。</p>
+<p><strong>Flags（标志符）：</strong>用来确认是否还有IP分片或是否能执行分片。</p>
+<p><strong>Fragment offset （分片偏移量）：</strong>用于标识IP分片的位置，实现IP分片的重组。</p>
+<p><strong>Time to live （生存时间）：</strong>标识IP数据包还能生存多久，根据操作系统不同，TTL默认值不同，每经过一个三层设备如路由器的处理，则TTL减去1，当TTL=0时，则此数据包被丢弃。</p>
+<p><strong>Protocol （协议号）：</strong>标识IP协议上层应用。当上层协议为ICMP时，协议号为1，TCP协议号为6，UDP的协议号为17。</p>
+<p><strong>Header checksum （头部校验）：</strong>用于检验IP数据包是否完整或被修改，若校验失败则丢弃数据包。</p>
+<p><strong>Source（源IP地址）：</strong>标识发送者IP地址，占用32bit。</p>
+<p><strong>Destination （目的IP地址）：</strong>标识接收者IP地址，占用32bit。</p>
+<h2 id="DNS"><a href="#DNS" class="headerlink" title="DNS"></a>DNS</h2><p>&emsp;&emsp;DNS的全称是Domain Name System,称为域名系统，是Internet上解决网上机器命令的一种系统，虽然在网上可以通过IP地址来标识一台机器，但是IP地址由四段以逗号分开的数组组成的，一两个的情况下记录起来不是问题，但是要是上百上千个的情况下记录起来不如记录名字快</p>
+<p>&emsp;&emsp;域名可将一个IP地址关联到一组有意义的字符上去。用户访问一个网站的时候，既可以输入该网站的IP地址，也可以输入其域名，就像是我们访问百度一样即可以在浏览器输入www.baidu.com也可以输入百度的IP 110.242.68.4 ，两个都是打开百度网站的首页</p>
+<h2 id="域名解析"><a href="#域名解析" class="headerlink" title="域名解析"></a>域名解析</h2><p>&emsp;&emsp;域名解析是把域名指向网站空间IP，让人们通过注册的域名可以方便地访问到网站的一种服务。P地址是网络上标识站点的数字地址，为了方便记忆，采用域名来代替IP地址标识站点地址。域名解析就是域名到IP地址的转换过程。域名的解析工作由DNS服务器服务器)完成。</p>
+<p>&emsp;&emsp;简单地来说就是将域名解析成IP，让用户访问网站时即可以输入域名访问也可以输入IP地址访问</p>
+<h2 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h2><ol>
+<li>TCP提供一种面向连接的、可靠的字节流服务</li>
+<li>在一个TCP连接中，仅有两方进行彼此通信。广播和多播不能用于TCP</li>
+<li>TCP使用校验和，确认和重传机制来保证可靠传输</li>
+<li>TCP给数据分节(给每一个传送的数据字节都编号)进行排序，并使用累积确认保证数据的顺序不变和非重复</li>
+<li>TCP使用滑动窗口机制来实现流量控制，通过动态改变窗口的大小进行拥塞控制</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xingerr/article/details/72834303">参考</a></p>
+<p><img src="https://img.imgdb.cn/item/60546201524f85ce29196125.jpg" alt=""></p>
+<ol>
+<li>序号：seq（Sequence）序号，占32位，用来标识从TCP源端向目的端发送的字节流，发起方发送数据时对此进行标记。</li>
+<li>确认序号：ack（Acknowledge）序号，占32位，只有ACK标志位为1时，确认序号字段才有效，ack=seq+1。</li>
+<li>标志位：每个标志位占用1Bit，共6个，即URG、ACK、PSH、RST、SYN、FIN等，具体含义如下：<ol>
+<li>URG：紧急指针（urgent pointer）有效。</li>
+<li>ACK(Acknowledge)：确认序号有效。</li>
+<li>PSH(Push)：接收方应该尽快将这个报文交给应用层。</li>
+<li>RST(Reset)：重置连接。</li>
+<li>SYN(Synchronous)：发起一个新连接。</li>
+<li>FIN(Finish)：释放一个连接。</li>
+</ol>
+</li>
+</ol>
+<h2 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h2><p><img src="https://img.imgdb.cn/item/6054595f524f85ce2914181a.png" alt=""></p>
+<p>说明：</p>
+<ul>
+<li><p>三次握手指的是建立一个TCP连接时，需要客户端和服务器总共发送三个包</p>
+</li>
+<li><p>第一次握手，客户端发送一个TCP的SYN标志位置1的包，表示客户端打算连接服务器的端口(同步请求)，并选择序号seq=x,表示传送数据时的第一个数据字节的序号是x；发送完毕后，客户端进入SYN_SEND状态</p>
+</li>
+<li><p>第二次握手，服务器端收到连接请求报文后，如果同意连接请求，则发回确认包，即SYN=1,ACK=1。服务器端选择字节ISN序列号随机值y，放到seq域中，同时将确认序号ack设置为客户的LSN加1，即x+1回复对方收到了序列为x开始的包，且希望下次的数据从x+1的位置开始；服务器端发送完毕后，服务器端进入SYN_RCVD状态</p>
+</li>
+<li><p>第三次握手，客户端接收到服务器端的确认报文后，再一次发送确认包ACK，SYN标志位为0，ACK的标志位为1，并且把服务器发来ACK的序列号字段+1，放在ack确认字段中发送给对方，并且告诉服务器自己的seq=x+1,客户端发送完毕后进入ESTAB_LISHED状态，当服务器接收到客户端发送的包后也会进入ESTAB_LISHED状态，至此握手结束</p>
+</li>
+</ul>
+<font color='red'>
+
+seq是为了区分是属于哪一次的连接，因为浏览器会给服务器发送多次连接请求
+
+ack是确认包，告诉浏览器已收到请求了，避免重复发送请求
+
+Q:握手一次行不行？
+
+A:一次握手不行的原因是，客户端发送完sync同步信号后，直接给服务器发送请求的话，第一次的同步信息无法判断服务器的状态，不知道服务器是否换了IP，服务器是否还存活，客户端虽然给服务器发送了同步信号，但是服务器没有返回任何信息，客户端对服务器的状态是不清楚的，因此一次是不行的
+
+Q:握手两次行不行?
+
+A:两次握手不行的原因是，客户端给服务器发送同步信号后，有一种情况是网络特别差的情况下发送回特别特别的慢，在超过一定的时间后浏览器会以为当前的信号可能会失败，然后浏览器会重新发送一次新的同步信号然后会将上一次发送的同步信号设置为无效，第二次和服务器通信的网络非常稳定，立即和服务器建立了连接然后迅速的完成了请求与响应到断开了链接，然后服务器接收到了第一次浏览器的同步信息，服务器会误以为是浏览器发送的最新的连接信号，因此会和这个请求建立链接返回信息给浏览器，但是浏览器根据seq判断出这次的连接时无效的，虽然服务器发送了消息，但是浏览器是不会给回信息的，当前是基于两次握手实现的，服务器以为建立链接成功了，因此它会一直的等浏览器返回，直到资源耗尽，
+
+</font>
+
+
+
+<h2 id="命令查看三次握手"><a href="#命令查看三次握手" class="headerlink" title="命令查看三次握手"></a>命令查看三次握手</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tcpdump -c number -v host IP</span><br></pre></td></tr></table></figure>
+<ul>
+<li>-c 指定不活多少个包</li>
+<li>-v 显示包的详细信息</li>
+<li>host 后面表示捕获的地址</li>
+<li>使用此命令需要使用管理员权限</li>
+</ul>
+<h3 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h3><p>1.先获取IP地址</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping www.baidu.com</span><br></pre></td></tr></table></figure>
+<p>2.打开终端，使用tcpdump命令进入捕获包状态</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tcpdump -c 3 -v host 110.242.68.3</span><br></pre></td></tr></table></figure>
+<p>3.打开浏览器访问 110.242.68.3，终端就会打印本次抓包的结果</p>
+<p><img src="https://img.imgdb.cn/item/605807fa8322e6675c51f1f3.png" alt=""></p>
+<p>客户端：xiaoxiao.47034</p>
+<p>服务器端：110.242.68.3</p>
+<p>从以上可以看出，在浏览器中输入IP地址后是经过了三次握手，第一次，客户端先给服务器端发送了一个同步信号，里面带了一个seq的序列号，第二次当服务器端接收到信息号，首先进行了一个checksum（校验），然后返回给客户端一个seq和ack = 客户端seq+1，第三次是客户端给服务器发送ack确认包，ack=1，至此三次连接就成功了</p>
+<h2 id="缓存机制"><a href="#缓存机制" class="headerlink" title="缓存机制"></a>缓存机制</h2><h3 id="Expires"><a href="#Expires" class="headerlink" title="Expires"></a>Expires</h3><p>缓存机制主要在http响应头中设置，相关字段为Expires,Cache-Control,Last-Modified,if-Modified-Since,Etag</p>
+<p>HTTP 1.0中，告诉浏览器在约定的时间前可以直接从缓存中获取资源，而不需要跑到服务器去获取</p>
+<p>Expires是相对时间而定的，而且时间是GMT，不是本地时间</p>
+<h3 id="Cache-Control"><a href="#Cache-Control" class="headerlink" title="Cache-Control"></a>Cache-Control</h3><p>HTTP 1.1中，新增的Cache-Control，同时设置Cache-Control和Expires的情况下，Cache-Control的优先级高于Expires，下面来说说这个头中常用字段的含义</p>
+<ul>
+<li>max-age：用来设置资源（representations）可以被缓存多长时间，单位为秒；</li>
+<li>s-maxage：和max-age是一样的，不过它只针对代理服务器缓存而言；</li>
+<li>public：指示响应可被任何缓存区缓存；</li>
+<li>private：只能针对个人用户，而不能被代理服务器缓存；</li>
+<li>no-cache：强制客户端直接向服务器发送请求,也就是说每次请求都必须向服务器发送。服务器接收到请求，然后判断资源是否变更，是则返回新内容，否则返回304，未变更。这个很容易让人产生误解，使人误以为是响应不被缓存。实际上Cache-Control: no-cache是会被缓存的，只不过每次在向客户端（浏览器）提供响应数据时，缓存都要向服务器评估缓存响应的有效性。</li>
+<li>no-store：禁止一切缓存（这个才是响应不被缓存的意思）</li>
+</ul>
+<h2 id="请求"><a href="#请求" class="headerlink" title="请求"></a>请求</h2><h3 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h3><p>请求可以分为三个部分，请求行，请求头部，请求数据，请求头部和请求数据之前有一个空行，请求行和请求头的结束符是回车符+换行符</p>
+<p>图示如下：</p>
+<p><img src="https://img.imgdb.cn/item/60580b198322e6675c53b822.jpg" alt=""></p>
+<h3 id="请求行"><a href="#请求行" class="headerlink" title="请求行"></a>请求行</h3><p>请求行由 请求方法，请求的URL，协议版本，以及结束的回车和换行符，在请求方法，请求的URL和协议版本三者之间有一个空格分隔，</p>
+<p>请求方法主要有以下几个：</p>
+<ul>
+<li>GET</li>
+<li>POST</li>
+<li>PUT</li>
+<li>DELETE</li>
+<li>HEAD</li>
+<li>OPTIONS</li>
+<li>CONNECT</li>
+<li>TRACE</li>
+<li>PATCH</li>
+</ul>
+<p>请求URL分为绝对路径和相对路径两种方式,<code>/</code> 和 <code>/news/articles/70.html</code></p>
+<p>协议版本表示HTTP的版本，现在大多数是1.1</p>
+<p>下面来看几个例子</p>
+<p><img src="https://img.imgdb.cn/item/60580d058322e6675c55869e.jpg" alt=""></p>
+<p>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;图 1.1</p>
+<p>图1.1是访问百度首页时，请求行的信息，可以看到这个请求URL是绝对路径访问</p>
+<p><img src="https://img.imgdb.cn/item/60580ce78322e6675c555dab.jpg" alt=""></p>
+<p>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;图 1.2</p>
+<p>图1.2是访问百度新闻某一个具体的新闻文章时的请求行信息，可以看到这个请求URL是相对路径访问</p>
+<h3 id="请求方法"><a href="#请求方法" class="headerlink" title="请求方法"></a>请求方法</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>GET</th>
+<th>一般是从服务器上获取信息</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>向服务器提交信息，将信息保存到服务器上，一般常见是表单提交和文件上传</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>一般是更新服务器端已经存在的数据信息</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>删除服务器端指定的数据信息</td>
+</tr>
+<tr>
+<td>HEAD</td>
+<td>和GET请求类型，不过只返回头信息</td>
+</tr>
+<tr>
+<td>OPTIONS</td>
+<td>这个和处理跨越相关的，是服务器端允许客户端已什么请求方法来获取数据</td>
+</tr>
+<tr>
+<td>CONNECT</td>
+<td>这个是用作代理</td>
+</tr>
+<tr>
+<td>TRACE</td>
+<td>这个主要是用于测试和诊断服务器</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td>对PUT方法的更新，用来对资源进行局部更新</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="请求头"><a href="#请求头" class="headerlink" title="请求头"></a>请求头</h3><p><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-4.2">官方地址</a></p>
+<p>按照请求头的作用可以分为三大类，分别是 内容协商，缓存控制，以及其他的头</p>
+<h4 id="内容协商"><a href="#内容协商" class="headerlink" title="内容协商"></a>内容协商</h4><p>简单地来收就是浏览器（客户端）希望服务器端给返回什么样的数据格式与内容。</p>
+<ul>
+<li>Accept</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Accept:text/html,image/jpeg,image/gif,application/pdf</span><br></pre></td></tr></table></figure>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Accept:text/html,image/jpeg;q=0.3,image/gif;q=0.5,application/pdf</span><br></pre></td></tr></table></figure>
+<p>表示浏览器可以接受的返回类型，主要包含格式有text/html,image/jpeg,image/gif,application/pdf</p>
+<p>第二行的请求头中 q=0.3表示返回这种格式的概率比较大，这个值的默认值是1</p>
+<ul>
+<li>Accept-Charset</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Accept-Charset</span><span class="punctuation">: </span>ISO-8859-1,gb2312,utf-8;q=0.7,*;q=0.3</span><br></pre></td></tr></table></figure>
+<p>*表示任意其他的字符集，这个值服务器给客户端返回的可以使用的字符集</p>
+<ul>
+<li>Accept-Encoding</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate, br</span><br></pre></td></tr></table></figure>
+<p>表示浏览器可以接受的压缩类型</p>
+<ul>
+<li>Accept-Language</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh-TW;q=0.9,zh;q=0.8,en-US;q=0.7,en;q=0.6</span><br></pre></td></tr></table></figure>
+<p>表示浏览器可以支持的语音</p>
+<h4 id="缓存控制"><a href="#缓存控制" class="headerlink" title="缓存控制"></a>缓存控制</h4><ul>
+<li>If-None-Match</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">ETag</span><span class="punctuation">: </span>W/&quot;6038a4f6-813&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">If-None-Match</span><span class="punctuation">: </span>W/&quot;6038a4f6-813&quot;</span><br></pre></td></tr></table></figure>
+<p>这个请求头是和响应头中的ETag一起结合使用的，当你第一次发起一个HTTP请求后，服务器会返回一个ETag，当你第二次发起相同的请求后，客户端（浏览器）就会在请求头中携带 if-none-math这个头，它的值就是Etag的值，服务器端接受到这个值后会与服务器本身存储的值进行比较，如果相同的话，将if-none-math设置为false，返回状态304，客户端使用本地缓存，服务器不会返回任何数据，因为服务器的数据没有更新，如果不相同的话，将if-none-math设置为true，返回状态200，客户端需要重新解析服务器端返回的数据</p>
+<ul>
+<li>If-Modified-Since</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">If-Modified-Since</span><span class="punctuation">: </span>Fri, 26 Feb 2021 07:36:22 GMT</span><br></pre></td></tr></table></figure>
+<p>用于记录页面的最后修改时间，与if-none-match的判断功能类似，都是作用于客户端第二次请求相同的URL时，浏览器会携带这个请求头，向服务器询问次时间之后文件是否有被修改过，这个时间是本地浏览器存储的文件修改时间，服务器端接收到这个时间后会与服务器上对应文件的最后修改时间进行比较，如果时间一致，返回状态304（文件内容未发生改变），内容是空的，客户端使用本地缓存，如果时间不一致，就会返回状态200，客户端需要重新解析服务器端返回的数据</p>
+<ul>
+<li>If-Match</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">If-Match</span><span class="punctuation">: </span>W/&quot;67ab43&quot;, &quot;54ed21&quot;, &quot;7892dd&quot;</span><br></pre></td></tr></table></figure>
+<p>这个请求头是和响应头中的ETag一起结合使用的，当你第一次发起一个HTTP请求后，服务器会返回一个ETag，当你第二次发起相同的请求后,客户端会携带 if-math这个请求头，当服务器接收到这个头信息后，服务器会将要修改的资源的获取出来计算出一个etag，然后服务器会将计算的etag与客户端发送的etag进行对比，如果一致说明资源在浏览器修改的这段时间没有人对其进行过修改，浏览器当前的修改操作就可以执行，如果不一致，说明在浏览器修改的这段时间内有其他的人对资源进行了修改，那么此次的浏览器的修改就不会被执行</p>
+<ul>
+<li>If-Unmodified-Since</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">If-Unmodified-Since</span><span class="punctuation">: </span>Wed, 21 Oct 2015 07:28:00 GMT </span><br></pre></td></tr></table></figure>
+<p>这个请求头是当前资源的最新修改时间，服务器会将资源的对应的修改时间获取到，然后两个时间进行对比，时间不一致的话，当前的修改资源请求是不被运行的，时间一致的话，当前请求修改资源是可以成功执行的</p>
+<ul>
+<li>If-Range</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">If-Range</span><span class="punctuation">: </span>Wed, 21 Oct 2015 07:28:00 GMT </span><br></pre></td></tr></table></figure>
+<p>用于断点续传，在我们下载文件的时候，开始下载后，可能由于网络的原因，断网后没有完成下载，当我们第二次重新连接成功后，会携带这个请求头给服务器，服务器会根据这个信息去找要下载的资源信息，然后计算出一个值会与客户端的进行比较，如果一致的话，说明浏览器下载的数据是有效的，服务器就会把剩下的数据返回给浏览器；如果不一致的话，说明在断网的情况下，服务器更新了这个资源的信息，这时候服务器会让浏览器重新下载当前的文档</p>
+<h4 id="其他请求头"><a href="#其他请求头" class="headerlink" title="其他请求头"></a>其他请求头</h4><ul>
+<li>User-Agent</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36</span><br></pre></td></tr></table></figure>
+<p>告诉服务器当前客户端所处的操作系统以及浏览器的相关信息</p>
+<ul>
+<li>Referer</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">referer</span><span class="punctuation">: </span>https://test.ia.qq.com</span><br></pre></td></tr></table></figure>
+<p>标识上一个请求的来源地址，主要用于请求跟踪</p>
+<ul>
+<li>Expect</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Expect</span><span class="punctuation">: </span>100-Continue</span><br></pre></td></tr></table></figure>
+<p>允许客户端在发送请求内容之前，判断源服务器是否愿意接受请求</p>
+<p>主要是post请求，询问服务器是否支持post请求</p>
+<p>curl命令还会发送expect请求头</p>
+<ul>
+<li>Host</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.baidu.com</span><br></pre></td></tr></table></figure>
+<p>发送请求主机的域名</p>
+<ul>
+<li>Connection</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>keep-alive</span><br></pre></td></tr></table></figure>
+<p>浏览器开启长连接，就是多个连接会复用一个tcp连接</p>
+<h3 id="请求体"><a href="#请求体" class="headerlink" title="请求体"></a>请求体</h3><p>请求体是经过请求行，请求头加上回车换行符之后的最后一部分内容就是请求数据</p>
+<p>表示向服务器端发送本次数据的格式，也就是请求头中Content-Type:的值，有四种</p>
+<ul>
+<li>application/json</li>
+</ul>
+<p>json数据格式 </p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;name&quot;</span>:<span class="string">&quot;Jom&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;sex&quot;</span>:<span class="string">&quot;F&quot;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>text/plain</li>
+</ul>
+<p>纯文本格式</p>
+<ul>
+<li>application/x-www-form-urlencoded</li>
+</ul>
+<p>经过编码之后的格式，形式如 name=tom&amp;age=18,如果参数对应的值中有分隔符&amp;的值，值会被编码处理</p>
+<ul>
+<li>multipart/form-data</li>
+</ul>
+<p>添加表单使用，文件上传</p>
+<h2 id="响应"><a href="#响应" class="headerlink" title="响应"></a>响应</h2><h3 id="结构-1"><a href="#结构-1" class="headerlink" title="结构"></a>结构</h3><p><img src="https://img.imgdb.cn/item/60585dc58322e6675c8463a6.jpg" alt=""></p>
+<h3 id="响应行"><a href="#响应行" class="headerlink" title="响应行"></a>响应行</h3><p>响应行由 协议版本，状态码，状态码描述以及结束的回车和换行符，在协议版本，状态码和状态码描述三者之间有一个空格分隔</p>
+<p>常见的状态码如下：</p>
+<ul>
+<li>200 ，请求成功</li>
+<li>301，永久重定向，请求的资源已被转移到其他地址</li>
+<li>302，临时重定向</li>
+<li>400，错误的请求语法，服务器无法理解处理</li>
+<li>403，服务器可以理解处理客户端的请求，但是拒绝执行此请求</li>
+<li>404，没有找到客户端请求的资源</li>
+<li>500，服务器端内部错误，无法完成请求</li>
+<li>502，服务器将请求传递给后端处理脚本的时候，后端脚本处理出错</li>
+<li>504，请求超时，后端代理的服务器响应超时，后端脚本如果没有超过设置的超时时间会依然进行请求的处理</li>
+</ul>
+<h3 id="状态码"><a href="#状态码" class="headerlink" title="状态码"></a>状态码</h3><p>状态码主要分为5种类型：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1**</td>
+<td>信息类，表示服务器接收到请求了，需要请求者继续执行操作</td>
+</tr>
+<tr>
+<td>2**</td>
+<td>表示请求已经被成功处理</td>
+</tr>
+<tr>
+<td>3**</td>
+<td>重定向，需要进一步的操作以完成请求</td>
+</tr>
+<tr>
+<td>4**</td>
+<td>客户端错误，请求包含语法错误或无法完成请求</td>
+</tr>
+<tr>
+<td>5**</td>
+<td>服务器错误，服务器在处理请求的过程中发生了错误</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">状态码</th>
+<th style="text-align:left">状态码英文名称</th>
+<th style="text-align:left">中文描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">100</td>
+<td style="text-align:left">Continue</td>
+<td style="text-align:left">继续。客户端应继续其请求</td>
+</tr>
+<tr>
+<td style="text-align:left">101</td>
+<td style="text-align:left">Switching Protocols</td>
+<td style="text-align:left">切换协议。服务器根据客户端的请求切换协议。只能切换到更高级的协议，例如，切换到HTTP的新版本协议</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">200</td>
+<td style="text-align:left">OK</td>
+<td style="text-align:left">请求成功。一般用于GET与POST请求</td>
+</tr>
+<tr>
+<td style="text-align:left">201</td>
+<td style="text-align:left">Created</td>
+<td style="text-align:left">已创建。成功请求并创建了新的资源</td>
+</tr>
+<tr>
+<td style="text-align:left">202</td>
+<td style="text-align:left">Accepted</td>
+<td style="text-align:left">已接受。已经接受请求，但未处理完成</td>
+</tr>
+<tr>
+<td style="text-align:left">203</td>
+<td style="text-align:left">Non-Authoritative Information</td>
+<td style="text-align:left">非授权信息。请求成功。但返回的meta信息不在原始的服务器，而是一个副本</td>
+</tr>
+<tr>
+<td style="text-align:left">204</td>
+<td style="text-align:left">No Content</td>
+<td style="text-align:left">无内容。服务器成功处理，但未返回内容。在未更新网页的情况下，可确保浏览器继续显示当前文档</td>
+</tr>
+<tr>
+<td style="text-align:left">205</td>
+<td style="text-align:left">Reset Content</td>
+<td style="text-align:left">重置内容。服务器处理成功，用户终端（例如：浏览器）应重置文档视图。可通过此返回码清除浏览器的表单域</td>
+</tr>
+<tr>
+<td style="text-align:left">206</td>
+<td style="text-align:left">Partial Content</td>
+<td style="text-align:left">部分内容。服务器成功处理了部分GET请求</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">300</td>
+<td style="text-align:left">Multiple Choices</td>
+<td style="text-align:left">多种选择。请求的资源可包括多个位置，相应可返回一个资源特征与地址的列表用于用户终端（例如：浏览器）选择</td>
+</tr>
+<tr>
+<td style="text-align:left">301</td>
+<td style="text-align:left">Moved Permanently</td>
+<td style="text-align:left">永久移动。请求的资源已被永久的移动到新URI，返回信息会包括新的URI，浏览器会自动定向到新URI。今后任何新的请求都应使用新的URI代替</td>
+</tr>
+<tr>
+<td style="text-align:left">302</td>
+<td style="text-align:left">Found</td>
+<td style="text-align:left">临时移动。与301类似。但资源只是临时被移动。客户端应继续使用原有URI</td>
+</tr>
+<tr>
+<td style="text-align:left">303</td>
+<td style="text-align:left">See Other</td>
+<td style="text-align:left">查看其它地址。与301类似。使用GET和POST请求查看</td>
+</tr>
+<tr>
+<td style="text-align:left">304</td>
+<td style="text-align:left">Not Modified</td>
+<td style="text-align:left">未修改。所请求的资源未修改，服务器返回此状态码时，不会返回任何资源。客户端通常会缓存访问过的资源，通过提供一个头信息指出客户端希望只返回在指定日期之后修改的资源</td>
+</tr>
+<tr>
+<td style="text-align:left">305</td>
+<td style="text-align:left">Use Proxy</td>
+<td style="text-align:left">使用代理。所请求的资源必须通过代理访问</td>
+</tr>
+<tr>
+<td style="text-align:left">306</td>
+<td style="text-align:left">Unused</td>
+<td style="text-align:left">已经被废弃的HTTP状态码</td>
+</tr>
+<tr>
+<td style="text-align:left">307</td>
+<td style="text-align:left">Temporary Redirect</td>
+<td style="text-align:left">临时重定向。与302类似。使用GET请求重定向</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">400</td>
+<td style="text-align:left">Bad Request</td>
+<td style="text-align:left">客户端请求的语法错误，服务器无法理解</td>
+</tr>
+<tr>
+<td style="text-align:left">401</td>
+<td style="text-align:left">Unauthorized</td>
+<td style="text-align:left">请求要求用户的身份认证</td>
+</tr>
+<tr>
+<td style="text-align:left">402</td>
+<td style="text-align:left">Payment Required</td>
+<td style="text-align:left">保留，将来使用</td>
+</tr>
+<tr>
+<td style="text-align:left">403</td>
+<td style="text-align:left">Forbidden</td>
+<td style="text-align:left">服务器理解请求客户端的请求，但是拒绝执行此请求</td>
+</tr>
+<tr>
+<td style="text-align:left">404</td>
+<td style="text-align:left">Not Found</td>
+<td style="text-align:left">服务器无法根据客户端的请求找到资源（网页）。通过此代码，网站设计人员可设置”您所请求的资源无法找到”的个性页面</td>
+</tr>
+<tr>
+<td style="text-align:left">405</td>
+<td style="text-align:left">Method Not Allowed</td>
+<td style="text-align:left">客户端请求中的方法被禁止</td>
+</tr>
+<tr>
+<td style="text-align:left">406</td>
+<td style="text-align:left">Not Acceptable</td>
+<td style="text-align:left">服务器无法根据客户端请求的内容特性完成请求</td>
+</tr>
+<tr>
+<td style="text-align:left">407</td>
+<td style="text-align:left">Proxy Authentication Required</td>
+<td style="text-align:left">请求要求代理的身份认证，与401类似，但请求者应当使用代理进行授权</td>
+</tr>
+<tr>
+<td style="text-align:left">408</td>
+<td style="text-align:left">Request Time-out</td>
+<td style="text-align:left">服务器等待客户端发送的请求时间过长，超时</td>
+</tr>
+<tr>
+<td style="text-align:left">409</td>
+<td style="text-align:left">Conflict</td>
+<td style="text-align:left">服务器完成客户端的 PUT 请求时可能返回此代码，服务器处理请求时发生了冲突</td>
+</tr>
+<tr>
+<td style="text-align:left">410</td>
+<td style="text-align:left">Gone</td>
+<td style="text-align:left">客户端请求的资源已经不存在。410不同于404，如果资源以前有现在被永久删除了可使用410代码，网站设计人员可通过301代码指定资源的新位置</td>
+</tr>
+<tr>
+<td style="text-align:left">411</td>
+<td style="text-align:left">Length Required</td>
+<td style="text-align:left">服务器无法处理客户端发送的不带Content-Length的请求信息</td>
+</tr>
+<tr>
+<td style="text-align:left">412</td>
+<td style="text-align:left">Precondition Failed</td>
+<td style="text-align:left">客户端请求信息的先决条件错误</td>
+</tr>
+<tr>
+<td style="text-align:left">413</td>
+<td style="text-align:left">Request Entity Too Large</td>
+<td style="text-align:left">由于请求的实体过大，服务器无法处理，因此拒绝请求。为防止客户端的连续请求，服务器可能会关闭连接。如果只是服务器暂时无法处理，则会包含一个Retry-After的响应信息</td>
+</tr>
+<tr>
+<td style="text-align:left">414</td>
+<td style="text-align:left">Request-URI Too Large</td>
+<td style="text-align:left">请求的URI过长（URI通常为网址），服务器无法处理</td>
+</tr>
+<tr>
+<td style="text-align:left">415</td>
+<td style="text-align:left">Unsupported Media Type</td>
+<td style="text-align:left">服务器无法处理请求附带的媒体格式</td>
+</tr>
+<tr>
+<td style="text-align:left">416</td>
+<td style="text-align:left">Requested range not satisfiable</td>
+<td style="text-align:left">客户端请求的范围无效</td>
+</tr>
+<tr>
+<td style="text-align:left">417</td>
+<td style="text-align:left">Expectation Failed</td>
+<td style="text-align:left">服务器无法满足Expect的请求头信息</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">500</td>
+<td style="text-align:left">Internal Server Error</td>
+<td style="text-align:left">服务器内部错误，无法完成请求</td>
+</tr>
+<tr>
+<td style="text-align:left">501</td>
+<td style="text-align:left">Not Implemented</td>
+<td style="text-align:left">服务器不支持请求的功能，无法完成请求</td>
+</tr>
+<tr>
+<td style="text-align:left">502</td>
+<td style="text-align:left">Bad Gateway</td>
+<td style="text-align:left">作为网关或者代理工作的服务器尝试执行请求时，从远程服务器接收到了一个无效的响应</td>
+</tr>
+<tr>
+<td style="text-align:left">503</td>
+<td style="text-align:left">Service Unavailable</td>
+<td style="text-align:left">由于超载或系统维护，服务器暂时的无法处理客户端的请求。延时的长度可包含在服务器的Retry-After头信息中</td>
+</tr>
+<tr>
+<td style="text-align:left">504</td>
+<td style="text-align:left">Gateway Time-out</td>
+<td style="text-align:left">充当网关或代理的服务器，未及时从远端服务器获取请求</td>
+</tr>
+<tr>
+<td style="text-align:left">505</td>
+<td style="text-align:left">HTTP Version not supported</td>
+<td style="text-align:left">服务器不支持请求的HTTP协议的版本，无法完成处理</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="响应头"><a href="#响应头" class="headerlink" title="响应头"></a>响应头</h3><p><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-7.1">官网</a></p>
+<ul>
+<li>Content-Encoding</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Content-Encoding</span><span class="punctuation">: </span>gzip</span><br></pre></td></tr></table></figure>
+<p>服务器端告诉浏览器使用的是那种压缩格式</p>
+<ul>
+<li>Content-Range</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Content-Range</span><span class="punctuation">: </span>bytes 200-299/403</span><br></pre></td></tr></table></figure>
+<p>用于断点续传</p>
+<ul>
+<li>Content-Language</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Content-Language</span><span class="punctuation">: </span>zh</span><br></pre></td></tr></table></figure>
+<p>服务器告诉浏览器使用的语言</p>
+<ul>
+<li>Expires</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Expires</span><span class="punctuation">: </span>Tue, 23 Mar 2021 02:34:21 GMT</span><br></pre></td></tr></table></figure>
+<p>浏览器从服务器请求到资源后，服务器告诉浏览器当前资源缓存到什么时候截止，这个时间段之后就不能从缓存中获取需要重新向服务器获取时间</p>
+<ul>
+<li>Content-Type</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>text/html</span><br></pre></td></tr></table></figure>
+<p>服务器告诉浏览器返回的内容格式</p>
+<ul>
+<li>Content-Length</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>10769</span><br></pre></td></tr></table></figure>
+<p>服务器返回给浏览器响应数据的大小，如果后端数据是通过分块返回给浏览器就不能通过这个响应头来判断相应数据的大小，只能根据块大小累积</p>
+<ul>
+<li>Last-Modified</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Last-Modified</span><span class="punctuation">: </span>Mon, 26 Apr 2010 13:22:17 GMT</span><br></pre></td></tr></table></figure>
+<p>服务器给浏览器发送响应数据时，是响应数据最新的修改时间，浏览器二次请求时会带上这个时间发送服务器，服务器会把请求数据的最新修改时间拿出来进行对比，根据时间是否一致决定是否向服务器获取最新时间</p>
+<ul>
+<li>Location</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Location</span><span class="punctuation">: </span>http://www.baidu.com</span><br></pre></td></tr></table></figure>
+<p>服务器返回重定向的状态码后会携带这个响应头表示资源的新的请求地址</p>
+<ul>
+<li>Cache-Control</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>private</span><br></pre></td></tr></table></figure>
+<ul>
+<li>max-age：用来设置资源（representations）可以被缓存多长时间，单位为秒；</li>
+<li>s-maxage：和max-age是一样的，不过它只针对代理服务器缓存而言；</li>
+<li>public：指示响应可被任何缓存区缓存；</li>
+<li>private：只能针对个人用户，而不能被代理服务器缓存；</li>
+<li>no-cache：强制客户端直接向服务器发送请求,也就是说每次请求都必须向服务器发送。服务器接收到请求，然后判断资源是否变更，是则返回新内容，否则返回304，未变更。这个很容易让人产生误解，使人误以为是响应不被缓存。实际上Cache-Control: no-cache是会被缓存的，只不过每次在向客户端（浏览器）提供响应数据时，缓存都要向服务器评估缓存响应的有效性。</li>
+<li><p>no-store：禁止一切缓存（这个才是响应不被缓存的意思）</p>
+</li>
+<li><p>Connection</p>
+</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>Keep-Alive</span><br></pre></td></tr></table></figure>
+<p>表示本次连接是否是长连接，意思是当前的链接是否可以复用</p>
+<h3 id="响应体"><a href="#响应体" class="headerlink" title="响应体"></a>响应体</h3><p>就是服务器给浏览器发回的数据内容，我们在浏览器的调试模式下可以看到response的内容，这个内容的格式有响应头 Content-Type来决定，响应头中是json格式返回的数据就是json格式，是html返回的就是html</p>
+<h2 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/86426969">参考</a></p>
+<p><img src="https://img.imgdb.cn/item/60596a9d8322e6675c0f5ab4.jpg" alt=""></p>
+<p><img src="https://img.imgdb.cn/item/60545fc4524f85ce2917ed20.jpg" alt=""></p>
+<p><img src="https://img.imgdb.cn/item/60595f4b8322e6675c0845d6.jpg" alt=""></p>
+<p>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;图改</p>
+<p>四次挥手是在经过三次握手，请求响应后，连接关闭的阶段</p>
+<p>关闭的一端可能是服务器端也可能是客户端，对应图改上的话，有可能是主机1发起断开连接也有可能是主机2发起断开连接</p>
+<p>第一次挥手，主机1向主机2发送一个fin报文，然后主机1就会处于一个FIN_WAIT_1的状态，即此次断开连接是由主机1发起的，fin报文包含FIN=1，seq=u,然后会停止发送数据，主动关闭tcp连接</p>
+<p>第二次挥手，主机2收到主机1发送的fin报文，会发出确认报文ACK=1，ack=u+1,seq=v，此时主机2处于close_wait状态，此时的tcp处于半关闭状态，主机1到主机2的连接会被释放，当主机1收到主机2的确认报文后，进入FIN_WAIT_2状态，等待主机2发送释放连接报文即fin报文</p>
+<p>第三次挥手，主机2这边也想断开连接了，会和主机1第一次挥手一样，发送给主机1fin报文，同时会指定一个序列号，此时服务器端会处于LAST_ACK状态，等待主机1的确认（FIN=1，ACK=1，seq=w，ack=u+1）</p>
+<p>第四次挥手，主机1收到主机2的fin报文后，会一样发送一个ACK确认报文作为应答，且把主机2的序列号值+1作为自己ACK报文的序列号值，此时主机1处于TIME_WAIT状态，需要经过一段时间确认主机2收到自己的ACK报文后会进入CLOSED状态，主机2收到确认报文后就关闭连接了，处于CLOSED状态</p>
+<font color='red'>
+
+Q: 第四次挥手是否真的必要
+
+A: 假设第四次的ack数据包不发生，对于主机2来说当它发送了fin包后，主机1是不会给主机2任何反馈的，可能会导致主机2认为fin包因为网络的原因发送失败了，主机2就会不断重新的发送fin包，会导致主机1和主机2无法正常的断开连接，因此第四次的挥手是必要的
+
+Q: 主机2在fin和ack中间干了什么
+
+A:  主机2需要保证这段时间的响应数据正确的发送给主机1，不会因为网络等原因造成数据丢失
+
+</font>
+
+
+<hr>
+
+    </div>
+
+     <div>
+          
+            <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+          
+     </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>如果，我的文章帮助到您了，求打赏</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wepay.png" alt="Xiao xiao 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Xiao xiao 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Xiao xiao
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.jixiaoxiao.com/article/http/" title="HTTP">https://www.jixiaoxiao.com/article/http/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/http/" rel="tag"><i class="fa fa-tag"></i> http</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/redis-message-queue/" rel="prev" title="redis消息队列">
+      <i class="fa fa-chevron-left"></i> redis消息队列
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/http2/" rel="next" title="http2">
+      http2 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ip"><span class="nav-number">1.</span> <span class="nav-text">ip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DNS"><span class="nav-number">2.</span> <span class="nav-text">DNS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">域名解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP"><span class="nav-number">4.</span> <span class="nav-text">TCP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B"><span class="nav-number">5.</span> <span class="nav-text">三次握手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E6%9F%A5%E7%9C%8B%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B"><span class="nav-number">6.</span> <span class="nav-text">命令查看三次握手</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%88%98"><span class="nav-number">6.1.</span> <span class="nav-text">实战</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6"><span class="nav-number">7.</span> <span class="nav-text">缓存机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Expires"><span class="nav-number">7.1.</span> <span class="nav-text">Expires</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cache-Control"><span class="nav-number">7.2.</span> <span class="nav-text">Cache-Control</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82"><span class="nav-number">8.</span> <span class="nav-text">请求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84"><span class="nav-number">8.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E8%A1%8C"><span class="nav-number">8.2.</span> <span class="nav-text">请求行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95"><span class="nav-number">8.3.</span> <span class="nav-text">请求方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E5%A4%B4"><span class="nav-number">8.4.</span> <span class="nav-text">请求头</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AE%B9%E5%8D%8F%E5%95%86"><span class="nav-number">8.4.1.</span> <span class="nav-text">内容协商</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E6%8E%A7%E5%88%B6"><span class="nav-number">8.4.2.</span> <span class="nav-text">缓存控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E8%AF%B7%E6%B1%82%E5%A4%B4"><span class="nav-number">8.4.3.</span> <span class="nav-text">其他请求头</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E4%BD%93"><span class="nav-number">8.5.</span> <span class="nav-text">请求体</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%8D%E5%BA%94"><span class="nav-number">9.</span> <span class="nav-text">响应</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84-1"><span class="nav-number">9.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E8%A1%8C"><span class="nav-number">9.2.</span> <span class="nav-text">响应行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E7%A0%81"><span class="nav-number">9.3.</span> <span class="nav-text">状态码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E5%A4%B4"><span class="nav-number">9.4.</span> <span class="nav-text">响应头</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E4%BD%93"><span class="nav-number">9.5.</span> <span class="nav-text">响应体</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B"><span class="nav-number">10.</span> <span class="nav-text">四次挥手</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xiao xiao"
+      src="/images/user.png">
+  <p class="site-author-name" itemprop="name">Xiao xiao</p>
+  <div class="site-description" itemprop="description">一个phper的技术栈与生活站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoxiao0301" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoxiao0301" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:simplexiaoxiao@gmail.com" title="E-Mail → mailto:simplexiaoxiao@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xiao xiao</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script src="/js/love.js"></script>
+</body>
+</html>

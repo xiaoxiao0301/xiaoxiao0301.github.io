@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-flat-top.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.jixiaoxiao.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="原理&amp;emsp;&amp;emsp;我们已经了解过RDB存在丢失最后一次操作数据记录，因此redis又提供了另外一种机制叫AOF来解决上述问题，AOF是以日志形式记录对redis的所有写操作，当redis处理一个写操作，不会直接写入到磁盘文件中，而是将写操作以协议方式追加到aof_buffr(aof缓冲区中)和写入aof文件中，同时会根据配置的fsync策略决定如何将文件同步到磁盘上。Redis在重启的时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis持久化之aof">
+<meta property="og:url" content="https://www.jixiaoxiao.com/article/redis-persist-aof/index.html">
+<meta property="og:site_name" content="The Station Agent">
+<meta property="og:description" content="原理&amp;emsp;&amp;emsp;我们已经了解过RDB存在丢失最后一次操作数据记录，因此redis又提供了另外一种机制叫AOF来解决上述问题，AOF是以日志形式记录对redis的所有写操作，当redis处理一个写操作，不会直接写入到磁盘文件中，而是将写操作以协议方式追加到aof_buffr(aof缓冲区中)和写入aof文件中，同时会根据配置的fsync策略决定如何将文件同步到磁盘上。Redis在重启的时">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cODfcd.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cODxun.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOrSH0.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cOsFdP.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/23/cXt3Q0.png">
+<meta property="article:published_time" content="2021-04-21T09:05:35.000Z">
+<meta property="article:modified_time" content="2021-06-01T04:26:44.193Z">
+<meta property="article:author" content="Xiao xiao">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/04/23/cODfcd.png">
+
+<link rel="canonical" href="https://www.jixiaoxiao.com/article/redis-persist-aof/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>redis持久化之aof | The Station Agent</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">The Station Agent</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">心灵驿站</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/xiaoxiao0301" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.jixiaoxiao.com/article/redis-persist-aof/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/user.png">
+      <meta itemprop="name" content="Xiao xiao">
+      <meta itemprop="description" content="一个phper的技术栈与生活站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="The Station Agent">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis持久化之aof
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-21 17:05:35" itemprop="dateCreated datePublished" datetime="2021-04-21T17:05:35+08:00">2021-04-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-01 12:26:44" itemprop="dateModified" datetime="2021-06-01T12:26:44+08:00">2021-06-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/database/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>&emsp;&emsp;我们已经了解过RDB存在丢失最后一次操作数据记录，因此redis又提供了另外一种机制叫AOF来解决上述问题，AOF是以日志形式记录对redis的所有写操作，当redis处理一个写操作，不会直接写入到磁盘文件中，而是将写操作以协议方式追加到aof_buffr(aof缓冲区中)和写入aof文件中，同时会根据配置的fsync策略决定如何将文件同步到磁盘上。Redis在重启的时候通过读取该日志文件来构造最新的数据</p>
+<p>&emsp;&emsp;aof,Append Only File,只追加文件，也就是每次处理完请求命令后将此次的命令追加到aof文件的末尾，而RDB是压缩成二进制等待子进程去写入</p>
+<p>&emsp;&emsp;这玩意默认是关闭的哦</p>
+<font color="red">
+
+aof文件是在Redis启动的过程中创建的，在运行过程中Redis不会创建aof文件的，所以如果在启动之后删除了aof文件，那么所有命令都将丢失。
+
+</font>
+
+<h2 id="策略"><a href="#策略" class="headerlink" title="策略"></a>策略</h2><h3 id="always"><a href="#always" class="headerlink" title="always"></a>always</h3><p>同步进行持久化，每一次发生数据变更会被立即记录到磁盘，性能比较差但数据完整性比较好</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/cODfcd"><img src="https://z3.ax1x.com/2021/04/23/cODfcd.png" alt="cODfcd.png"></a></p>
+<h3 id="everysec"><a href="#everysec" class="headerlink" title="everysec"></a>everysec</h3><p>异步操作，每秒记录一次，如果一秒内宕机，会丢失1秒数据</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/cODxun"><img src="https://z3.ax1x.com/2021/04/23/cODxun.png" alt="cODxun.png"></a></p>
+<h3 id="no"><a href="#no" class="headerlink" title="no"></a>no</h3><p>这个由操作系统的策略决定</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/cOrSH0"><img src="https://z3.ax1x.com/2021/04/23/cOrSH0.png" alt="cOrSH0.png"></a></p>
+<h2 id="策略比较"><a href="#策略比较" class="headerlink" title="策略比较"></a>策略比较</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>always</th>
+<th>everysec</th>
+<th>no</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优点</td>
+<td>不丢失数据</td>
+<td>每秒一次fsync，会丢失一秒数据</td>
+<td>无</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>IO开销较大，一般的sata盘只有几百TPS</td>
+<td>丢1秒数据</td>
+<td>不可控</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="重写"><a href="#重写" class="headerlink" title="重写"></a>重写</h2><h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>&emsp;&emsp;由于 AOF以命令方式保存数据，所以很容易导致文件过大，因此Redis提供 了重写机制，当aof文件超过指定的阔值时(或通过bgrewriteaof命令)，Redis将fork出一个子进程，由子进程将其内存中的数据以命令的形式保存到一个新的aop文件中，再覆盖掉旧的aof文件。由于重写aof并不会读取旧aof文件中的内容，而是把当前内存中的数据，以命令的形式记录到新的aof文件，所以新的aof文件中只会保留可恢复数据的最小指令集。整个过程其实和bgsave很类似，只是AOF以命令方式存储，而RDB存储的是数据而已。<br>　　由于bgrewriteaof会涉及到大量的磁盘操作，而且持续时间一般比较长，在子进程往新aof文件中写入数据的过程中，如果父进程有新的写操作也需要写入到原aof中，就可能产生两个问题：1新的写操作无法被子进程得知；2两者由于竞争I/O可能导致停顿延迟，对了父进程而言由于还要处理其它命令相对来说延迟影响更加大。<br>　　为了解决这种情况，Redis为aof的重写也提供了重写缓冲区，以及一个配置no-appendfsync-on-rewrite来控制在rewrite过程中，父进程如何处理写操作。在rewrite过程中，Redis会把写操作同时追加到aof缓冲区和aof重写缓冲区，aof缓冲区中的内容仍会根据fsync同步策略被同步到原aof磁盘文件中，对原有aof文件的处理照常进行。对于重写缓冲区中的数据，在重写完成后子进程会向父进程发送一个信号，父进程接收到该信号后再将aof重写缓冲区中的内容写入新aof文件中，最后重命名新的aof文件覆盖原有aof。（注：重写过程中，对于列表类型的数据，当项多于64个时，会分多次追加SADD或RPUSH等命令）</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p><a target="_blank" rel="noopener" href="https://imgtu.com/i/cOsFdP"><img src="https://z3.ax1x.com/2021/04/23/cOsFdP.png" alt="cOsFdP.png"></a></p>
+<h3 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h3><ul>
+<li>减少硬盘占用量</li>
+<li>加快恢复速度</li>
+</ul>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><h4 id="bgrewriteof"><a href="#bgrewriteof" class="headerlink" title="bgrewriteof"></a>bgrewriteof</h4><p>客户端手动执行bgrewriteof命令，这个命令会立即返回</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/cXt3Q0"><img src="https://z3.ax1x.com/2021/04/23/cXt3Q0.png" alt="cXt3Q0.png"></a></p>
+<ul>
+<li>aof_rewrite_buf：rewrite(重写)缓冲区、aof_buf：写命令存放的缓冲区</li>
+<li>开始bgrewriteaof的时候，判断当前有没有bgsave/bgrewriteaof在执行，若有，则不执行，没有继续往下执行</li>
+<li>主进程fork()出子进程，在执行fork()这个方法的时候是阻塞的，子进程创建完毕后就不阻塞了</li>
+<li>主进程fork完子进程后，主进程能继续接收客户端的请求，所有写命令依然是写入AOF文件缓冲区并根据配置文件的策略同步到磁盘的。</li>
+<li>因为fork的子进程仅仅共享主进程fork()时的内存，后期主进程在更改内存数据，子进程是不可见的。因此Redis采取重写缓冲区（aof_rewite_buf）保存fork之后的客户端请求。防止新AOF文件生成期间丢失主进程执行的新命令所生成的数据。所以此时客户端的写请求不仅仅写入原来的aof_buf缓冲区，还写入了重写缓冲区。</li>
+<li>子进程通过内存快照的形式，开始生成新的aof文件。</li>
+<li>新aof文件生成完后，子进程向主进程发信号。</li>
+<li>主进程收到信号后，会把重写缓冲区(aof_rewite_buf)中的数据写入到新的AOF文件（主要是避免这部分数据丢失）</li>
+<li>使用新的AOF文件覆盖旧的AOF文件，且标记AOF重写完成。</li>
+</ul>
+<h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>配置名</th>
+<th>含义</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>auto-aof-rewrite-min-size</td>
+<td>AOF文件重写需要的尺寸</td>
+<td>64mb</td>
+</tr>
+<tr>
+<td>auto-aof-rewrite-percentage</td>
+<td>AOF文件增长率</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>持久化的速度快，因为每次都只是追加，rdb每次都全量持久化</li>
+<li>数据相对更可靠，丢失少，因可以配置每秒持久化、每个命令执行完就持久化</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>灾难性恢复的时候过慢，因为aof每次都只追加原命令，导致aof文件过大，但是后面会rewrite，但是相对于rdb也是慢的</li>
+<li>会对主进程对外提供请求的效率造成影响，接收请求、处理请求、写aof文件这三步是串行原子执行的。而非异步多线程执行的。Redis单线程！</li>
+</ul>
+<h2 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h2><blockquote>
+<p>appendonly yes</p>
+</blockquote>
+<p>打开aof持久化</p>
+<blockquote>
+<p>appendfilename “6379.aof”</p>
+</blockquote>
+<p>生成aof文件的名称</p>
+<blockquote>
+<p>appendfsync everysec</p>
+</blockquote>
+<p>fsync刷新策略，有3个值分别是：always，everysec和no</p>
+<blockquote>
+<p>auto-aof-rewrite-percentage 100</p>
+<p>auto-aof-rewrite-min-size 64mb</p>
+</blockquote>
+<p>aof重写触发条件，第一个意思是当前文件的大小是上一次文件rewrite大小的一倍</p>
+<blockquote>
+<p>no-appendfsync-on-rewrite no</p>
+</blockquote>
+<p>bgrewriteaof会在一个子进程中去进行aof的重写,从而不会阻塞主进程对其它命令的处理。由于bgrewriteaof通常都会涉及到大量的磁盘操作,而且持续时间也比较长,当父进程也需要操作磁盘时，两者就可能产生竞争，从而可能导致父进程停顿,</p>
+<p>设为yes的情况下相当于将appendfsync设置为no,并不会立刻执行磁盘操作,而只是写入了缓冲区,因此这样并不会造成阻塞,但是如果这个时候redis挂掉,就会丢失数据。(在Linux系统中默认最多会丢失30s的数据)</p>
+<p>默认no的情况下，不会产生丢失，但却有可能阻塞。目前官方建议除非延迟到影响性能的程度,否则应该采用默认no</p>
+<blockquote>
+<p>aof-load-truncated yes</p>
+</blockquote>
+<p>设置为yes, Redis在加载aof文件时，如果aof文件中的最后一条命令不完整或者有误，redis会自动截取只成功加载前面正确的数据</p>
+<p>设置为no,那么Redis将启动失败，这种情况需要手动用redis-check-aof 工具对aof文件进行修复</p>
+<hr>
+
+    </div>
+
+     <div>
+          
+            <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+          
+     </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>如果，我的文章帮助到您了，求打赏</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wepay.png" alt="Xiao xiao 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Xiao xiao 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Xiao xiao
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.jixiaoxiao.com/article/redis-persist-aof/" title="redis持久化之aof">https://www.jixiaoxiao.com/article/redis-persist-aof/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/redis/" rel="tag"><i class="fa fa-tag"></i> redis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/redis-persist-rdb/" rel="prev" title="redis持久化之RDB">
+      <i class="fa fa-chevron-left"></i> redis持久化之RDB
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/redis-persist-summary/" rel="next" title="redis持久化总结">
+      redis持久化总结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%96%E7%95%A5"><span class="nav-number">2.</span> <span class="nav-text">策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#always"><span class="nav-number">2.1.</span> <span class="nav-text">always</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#everysec"><span class="nav-number">2.2.</span> <span class="nav-text">everysec</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#no"><span class="nav-number">2.3.</span> <span class="nav-text">no</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%96%E7%95%A5%E6%AF%94%E8%BE%83"><span class="nav-number">3.</span> <span class="nav-text">策略比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%86%99"><span class="nav-number">4.</span> <span class="nav-text">重写</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">4.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.2.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8"><span class="nav-number">4.3.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.4.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#bgrewriteof"><span class="nav-number">4.4.1.</span> <span class="nav-text">bgrewriteof</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">4.4.2.</span> <span class="nav-text">配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">5.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9"><span class="nav-number">5.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-1"><span class="nav-number">6.</span> <span class="nav-text">配置</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xiao xiao"
+      src="/images/user.png">
+  <p class="site-author-name" itemprop="name">Xiao xiao</p>
+  <div class="site-description" itemprop="description">一个phper的技术栈与生活站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoxiao0301" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoxiao0301" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:simplexiaoxiao@gmail.com" title="E-Mail → mailto:simplexiaoxiao@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xiao xiao</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script src="/js/love.js"></script>
+</body>
+</html>

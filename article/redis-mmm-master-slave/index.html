@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-flat-top.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.jixiaoxiao.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="单机问题&amp;emsp;&amp;emsp;我们通过学习Redis的持久化功能，即使服务器宕机了也会丢失少量的数据，但是如果这个服务器直接故障了呢？比如说硬盘坏了、系统崩溃等等，这样就不仅仅是造成数据丢失还有可能造成我们线上的业务直接挂掉。这也是单点服务器不安全的原因之一吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis高可用之主从复制">
+<meta property="og:url" content="https://www.jixiaoxiao.com/article/redis-mmm-master-slave/index.html">
+<meta property="og:site_name" content="The Station Agent">
+<meta property="og:description" content="单机问题&amp;emsp;&amp;emsp;我们通过学习Redis的持久化功能，即使服务器宕机了也会丢失少量的数据，但是如果这个服务器直接故障了呢？比如说硬盘坏了、系统崩溃等等，这样就不仅仅是造成数据丢失还有可能造成我们线上的业务直接挂掉。这也是单点服务器不安全的原因之一吧。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/25/cxkidK.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/25/cxkAiD.png">
+<meta property="og:image" content="https://z3.ax1x.com/2021/04/26/gSWqKI.png">
+<meta property="article:published_time" content="2021-04-25T01:54:03.000Z">
+<meta property="article:modified_time" content="2021-06-01T04:26:44.224Z">
+<meta property="article:author" content="Xiao xiao">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://z3.ax1x.com/2021/04/25/cxkidK.png">
+
+<link rel="canonical" href="https://www.jixiaoxiao.com/article/redis-mmm-master-slave/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>redis高可用之主从复制 | The Station Agent</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">The Station Agent</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">心灵驿站</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/xiaoxiao0301" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.jixiaoxiao.com/article/redis-mmm-master-slave/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/user.png">
+      <meta itemprop="name" content="Xiao xiao">
+      <meta itemprop="description" content="一个phper的技术栈与生活站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="The Station Agent">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis高可用之主从复制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-25 09:54:03" itemprop="dateCreated datePublished" datetime="2021-04-25T09:54:03+08:00">2021-04-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-01 12:26:44" itemprop="dateModified" datetime="2021-06-01T12:26:44+08:00">2021-06-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/database/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="单机问题"><a href="#单机问题" class="headerlink" title="单机问题"></a>单机问题</h2><p>&emsp;&emsp;我们通过学习Redis的持久化功能，即使服务器宕机了也会丢失少量的数据，但是如果这个服务器直接故障了呢？比如说硬盘坏了、系统崩溃等等，这样就不仅仅是造成数据丢失还有可能造成我们线上的业务直接挂掉。这也是单点服务器不安全的原因之一吧。</p>
+<p>&emsp;&emsp;为了避免单机故障的发生，通常是将数据复制多个副本保存在不同的服务器上，这样即使其中有一台服务器发生故障了，其他的服务器也可以继续提供服务器保证业务正常运行，对此Redis提供了多种的高可用方案，包括主从复制、哨兵模式的主从复制以及集群模式，今天我们来说最基础的主从复制模式。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>&emsp;&emsp;在主从复制中有两种角色，一种是主库，一种是从库。主库可以进行读写操作，从库只能进行读操作(特殊情况下从库也能进行写操作，这个由参数slave-read-only指定)，从库只接收来自主库的数据，一个主库可以拥有多个从库，但是一个从库只能有一个主库，因此，我们可以看出主从模式是有两种，一种是一主多从另一种是链式复制，即某一个从库也可以作为其他的从库的主库。</p>
+<p>&emsp;&emsp;默认情况下，每台Redis服务器都是主节点，且主节点可以没有从节点</p>
+<h2 id="架构图"><a href="#架构图" class="headerlink" title="架构图"></a>架构图</h2><p><a target="_blank" rel="noopener" href="https://imgtu.com/i/cxkidK"><img src="https://z3.ax1x.com/2021/04/25/cxkidK.png" alt="cxkidK.png"></a></p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/cxkAiD"><img src="https://z3.ax1x.com/2021/04/25/cxkAiD.png" alt="cxkAiD.png"></a></p>
+<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><ul>
+<li>数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。</li>
+<li>故障恢复：当主节点出现问题时，可以由从节点提供服务器，实现快速的故障恢复，它实际上是一种服务的冗余。</li>
+<li>负载均衡：在主从复制的基础上，配合读写分离，可以由主节点提供写服务，从节点提供读服务，分担服务器负载；尤其在写少读多的场景下，通过多个从节点分担读负载，可以大大提高Redis的并发量。</li>
+<li>高可用基础：它是哨兵模式和集群模式部署的基础。</li>
+</ul>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>&emsp;&emsp;主从复制过程大概可以分为以下3个阶段：</p>
+<ul>
+<li>建立链接阶段</li>
+<li>数据同步阶段</li>
+<li>命令广播阶段</li>
+</ul>
+<h3 id="建立连接"><a href="#建立连接" class="headerlink" title="建立连接"></a>建立连接</h3><p>&emsp;&emsp;当前阶段主要作用是在主从节点之间建立连接，为数据同步做好准备。</p>
+<ol>
+<li>保存主节点信息：在从节点服务器内部有两个字段，masterip和masterport，分别是指主库的IP和port信息；slaveof是异步的命令，从节点完成主节点IP和PORT的保存后，客户端会直接返回ok，但是实际上的复制是从当前之后才开始的</li>
+<li>建立socket连接：从节点每秒1次调用复制定时函数replicationCron()，如果发现了有主节点可以连接，便会根据主节点的IP和port创建socket连接，连接成功后，<ol>
+<li>从节点：为该socket建立一个专门处理复制工作的事件处理器，负责后续的复制工作，如接收rdb文件，接收命令广播等</li>
+<li>主节点：接收到从节点的socket连接后，即accept后，为该socket创建相应的客户端状态，并将从节点看做是连接到主节点的一个客户端，后面的工作就是通过此连接来发送命令的请求方式来进行</li>
+</ol>
+</li>
+<li>发送ping命令：从节点称为主节点的客户端之后，发送ping命令进行首次请求，为了检查socket的连接是否可用，以及主节点当前是否能够处理请求，从节点发送ping命令后有以下几种情况发生：<ol>
+<li>返回pong，说明和主库的socket连接正常，且主节点当前可用处理请求，复制过程正常进行</li>
+<li>超时：一定时间后从节点仍未收到主节点的回复，说明socket连接不可用，则从节点断开连接，并且重新连接主节点</li>
+<li>其他结果：返回其他的结果，例如说正在处理超时运行的脚本，说明主节点当前无法处理命令，则从节点断开socket连接，并尝试重新连接</li>
+</ol>
+</li>
+<li>身份验证：如果主节点配置了密码，从节点需要配置masterauth选项来进行身份验证，如果主节点没有配置密码就不需要设置此选项。进行身份验证时从节点通过向主节点发送auth命令进行，密码验证通过则复制功能进行执行，密码验证是吧，则从节点断开socket连接，并重连</li>
+<li>发送从节点断开信息：身份认证后，从节点会向主节点发送其监听的端口号，主节点将该信息保存到该从节点对应的客户端的slave_listening_port字段中，该端口信息只是方便查看从节点的监听端口</li>
+</ol>
+<h3 id="数据同步"><a href="#数据同步" class="headerlink" title="数据同步"></a>数据同步</h3><p>&emsp;&emsp;主从节点之间的连接建立以后，就可以开始数据同步工作了，首先便是从节点的数据初始化。具体的执行是从节点向主节点发送psync命令，开始进行同步</p>
+<p>&emsp;&emsp;数据同步根据朱从节点的状态不同情况可以分为全量复制和部分复制。这里有个影响就行，后面专门说这两个</p>
+<p>&emsp;&emsp;这一个阶段，主节点与从节点互为客户端，原因在于主节点从当前阶段开始需要主动向从节点发送请求传递命令数据，才能完成复制</p>
+<h3 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h3><p>&emsp;&emsp;这个阶段主要是主节点将自己执行的写命令发送给从节点，从节点接收到命令并执行，从而保证主从节点数据的一致性</p>
+<p>&emsp;&emsp;当然，除了发送写命令之外，主从节点还维持着心跳机制：PING和REPLCONF ACK</p>
+<p>&emsp;&emsp;主节点发送命令是异步的过程，也就是说主节点发送写命令后不会等待从节点的回复；实际上，主从节点之间很难保持数据实时的一致性，延迟是一定会有的，但是这种不一致的具体情况要看主从节点之间的网络状况，主节点写命令的执行频率以及主节点中的repl-disable-tcp-nodelay的配置</p>
+<p>&emsp;&emsp;repl-disable-tcp-nodelay no：这个用来控制主节点是否禁止与从节点的TCP_NODELAY，默认是no，即不禁止TCP_NODELAY。当设置为yes时，TCP会对包进行合并从而减少带宽，但是发送的频率会降低，从节点数据延迟增加，一致性会变差，这个发送频率的参数与linux内核的配置有关，默认配置是40ms，当设置为no时，TCP会立刻将主节点的数据发送给从节点，带宽增加但延迟变小，一般来说，只有当对应Redis数据不一致的容忍度较高时，且主从节点之间网络状况不好时，才会设置为yes，多数情况设置为no</p>
+<h2 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h2><p>&emsp;&emsp;在Redis2.8以前，从节点向主节点发送sync命令请求同步数据，此时的同步方式是全量复制；在Redis2.8及以后，从节点可以发送psync命令请求同步数据，此时根据主从节点当前状态的不同，同步方式可能是全量复制或部分复制</p>
+<h3 id="全量复制"><a href="#全量复制" class="headerlink" title="全量复制"></a>全量复制</h3><p>Redis通过psync命令进行全量复制的过程如下：</p>
+<p>（1）从节点判断无法进行部分复制，向主节点发送全量复制的请求；或从节点发送部分复制的请求，但主节点判断无法进行部分复制；</p>
+<p>（2）主节点收到全量复制的命令后，执行bgsave，在后台生成RDB文件，并使用一个缓冲区（称为复制缓冲区）记录从现在开始执行的所有写命令</p>
+<p>（3）主节点的bgsave执行完成后，将RDB文件发送给从节点；<strong>从节点首先清除自己的旧数据，然后载入接收的RDB文件</strong>，将数据库状态更新至主节点执行bgsave时的数据库状态</p>
+<p>（4）主节点将复制缓冲区中的所有写命令发送给从节点，从节点执行这些写命令，将数据库状态更新至主节点的最新状态</p>
+<p>（5）如果从节点开启了AOF，则会触发bgrewriteaof的执行，从而保证AOF文件更新至主节点的最新状态</p>
+<h3 id="部分复制"><a href="#部分复制" class="headerlink" title="部分复制"></a>部分复制</h3><h4 id="复制偏移量"><a href="#复制偏移量" class="headerlink" title="复制偏移量"></a>复制偏移量</h4><p>&emsp;&emsp;主节点和从节点分别维护一个复制偏移量（offset），代表的是<strong>主节点向从节点传递的字节数</strong>；主节点每次向从节点传播N个字节数据时，主节点的offset增加N；从节点每次收到主节点传来的N个字节数据时，从节点的offset增加N。</p>
+<p>&emsp;&emsp;offset用于判断主从节点的数据库状态是否一致：如果二者offset相同，则一致；如果offset不同，则不一致，此时可以根据两个offset找出从节点缺少的那部分数据。例如，如果主节点的offset是1000，而从节点的offset是500，那么部分复制就需要将offset为501-1000的数据传递给从节点。而offset为501-1000的数据存储的位置，就是下面要介绍的复制积压缓冲区</p>
+<h4 id="复制积压缓冲区"><a href="#复制积压缓冲区" class="headerlink" title="复制积压缓冲区"></a>复制积压缓冲区</h4><p>&emsp;&emsp;<strong>复制积压缓冲区是由主节点维护的、固定长度的、先进先出(FIFO)队列，默认大小1MB；</strong>当主节点开始有从节点时创建，其作用是备份主节点最近发送给从节点的数据。<strong>无论主节点有一个还是多个从节点，都只需要一个复制积压缓冲区</strong>。</p>
+<p>&emsp;&emsp;在命令传播阶段，主节点除了将写命令发送给从节点，还会发送一份给复制积压缓冲区，作为写命令的备份；除了存储写命令，复制积压缓冲区中还存储了其中的每个字节对应的复制偏移量（offset）。由于复制积压缓冲区定长且是先进先出，所以它保存的是主节点最近执行的写命令；时间较早的写命令会被挤出缓冲区。</p>
+<p>&emsp;&emsp;由于该缓冲区长度固定且有限，因此可以备份的写命令也有限，当主从节点offset的差距过大超过缓冲区长度时，将无法执行部分复制，只能执行全量复制。反过来说，为了提高网络中断时部分复制执行的概率，可以根据需要增大复制积压缓冲区的大小(通过配置repl-backlog-size)；例如如果网络中断的平均时间是60s，而主节点平均每秒产生的写命令(特定协议格式)所占的字节数为100KB，则复制积压缓冲区的平均需求为6MB，保险起见，可以设置为12MB，来保证绝大多数断线情况都可以使用部分复制。</p>
+<p>从节点将offset发送给主节点后，主节点根据offset和缓冲区大小决定能否执行部分复制：</p>
+<ul>
+<li>如果offset偏移量之后的数据，仍然都在复制积压缓冲区里，则执行部分复制；</li>
+<li>如果offset偏移量之后的数据已不在复制积压缓冲区中（数据已被挤出），则执行全量复制。</li>
+</ul>
+<h4 id="服务器运行ID-runid"><a href="#服务器运行ID-runid" class="headerlink" title="服务器运行ID(runid)"></a>服务器运行ID(runid)</h4><p>&emsp;&emsp;每个Redis节点(无论主从)，在启动时都会自动生成一个随机ID(每次启动都不一样)，由40个随机的十六进制字符组成；runid用来唯一识别一个Redis节点。通过info Server命令，可以查看节点的runid：<code>redis-cli info server | grep run_id</code></p>
+<p>&emsp;&emsp;主从节点初次复制时，主节点将自己的runid发送给从节点，从节点将这个runid保存起来；当断线重连时，从节点会将这个runid发送给主节点；主节点根据runid判断能否进行部分复制：</p>
+<ul>
+<li>如果从节点保存的runid与主节点现在的runid相同，说明主从节点之前同步过，主节点会继续尝试使用部分复制(到底能不能部分复制还要看offset和复制积压缓冲区的情况)；</li>
+<li>如果从节点保存的runid与主节点现在的runid不同，说明从节点在断线前同步的Redis节点并不是当前的主节点，只能进行全量复制。</li>
+</ul>
+<h2 id="开启主从"><a href="#开启主从" class="headerlink" title="开启主从"></a>开启主从</h2><p>从主复制的配置主要是在从节点发起的，不需要我们在主节点做什么配置，从节点开启主从复制有以下3种方式：</p>
+<ul>
+<li>配置文件</li>
+</ul>
+<p>在从服务器的配置文件中加入 <strong>slaveof <master_ip><master_port> </strong></p>
+<ul>
+<li>启动时添加参数</li>
+</ul>
+<p>redis-server启动命令时,<strong>—slaveof <master_ip> <master_port> </strong></p>
+<ul>
+<li>客户端执行命令</li>
+</ul>
+<p>redis服务启动后，可以在客户端执行<strong>slaveof <master_ip><master_port></strong>，则改Redis实例会变成从节点</p>
+<h2 id="主从配置参数"><a href="#主从配置参数" class="headerlink" title="主从配置参数"></a>主从配置参数</h2><h3 id="主库"><a href="#主库" class="headerlink" title="主库"></a>主库</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">repl-disable-tcp-nodelay no</span><br><span class="line">#在slave和master同步后（发送psync/sync），后续的同步是否设置成TCP_NODELAY假如设置成yes，则redis会合并小的TCP包从而节省带宽，但会增加同步延（40ms），造成master与slave数据不一致假如设置成no，则redis master会立即发送同步数据，没有延迟#前者关注性能，后者关注一致性</span><br><span class="line"></span><br><span class="line">repl-ping-slave-period 10</span><br><span class="line">#从库会按照一个时间间隔向主库发送PING命令来判断主服务器是否在线，默认是10秒</span><br><span class="line"></span><br><span class="line">repl-backlog-size 1mb</span><br><span class="line">#复制积压缓冲区大小设置</span><br><span class="line"></span><br><span class="line">repl-backlog-ttl 3600</span><br><span class="line">#master没有slave一段时间会释放复制缓冲区的内存，repl-backlog-ttl用来设置该时间长度。单位为秒。</span><br><span class="line"></span><br><span class="line">min-slaves-to-write 3</span><br><span class="line">min-slaves-max-lag 10</span><br><span class="line">#设置某个时间断内，如果从库数量小于该某个值则不允许主机进行写操作，以上参数表示10秒内如果主库的从节点小于3个，则主库不接受写请求，min-slaves-to-write 0代表关闭此功能。</span><br><span class="line">repl-diskless-sync no</span><br><span class="line">#作用于全量复制阶段，控制主节点是否使用diskless复制（无盘复制）。所谓diskless复制，是指在全量复制时，主节点不再先把数据写入RDB文件，而是直接写入slave的socket中，整个过程中不涉及硬盘；diskless复制在磁盘IO很慢而网速很快时更有优势。需要注意的是，截至Redis3.0，diskless复制处于实验阶段，默认是关闭的。</span><br><span class="line">repl-diskless-sync-delay 5</span><br><span class="line">#该配置作用于全量复制阶段，当主节点使用diskless复制时，该配置决定主节点向从节点发送之前停顿的时间，单位是秒；只有当diskless复制打开时有效，默认5s。之所以设置停顿时间，是基于以下两个考虑：(1)向slave的socket的传输一旦开始，新连接的slave只能等待当前数据传输结束，才能开始新的数据传输 (2)多个从节点有较大的概率在短时间内建立主从复制。</span><br><span class="line">client-output-buffer-limit slave 256MB 64MB 60</span><br><span class="line">#全量复制阶段主节点的缓冲区大小</span><br></pre></td></tr></table></figure>
+<h3 id="从库"><a href="#从库" class="headerlink" title="从库"></a>从库</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">slaveof &lt;masterip&gt; &lt;masterport&gt; </span><br><span class="line">#设置该数据库为其他数据库的从数据库</span><br><span class="line"></span><br><span class="line">masterauth &lt;master-password&gt;</span><br><span class="line">#主从复制中，设置连接master服务器的密码（前提master启用了认证）</span><br><span class="line"></span><br><span class="line">slave-serve-stale-data yes</span><br><span class="line"># 当从库同主库失去连接或者复制正在进行，从库有两种运行方式：</span><br><span class="line"># 1) 如果slave-serve-stale-data设置为yes(默认设置)，从库会继续相应客户端的请求</span><br><span class="line"># 2) 如果slave-serve-stale-data设置为no，除了INFO和SLAVOF命令之外的任何请求都会返回一个错误&quot;SYNC with master in progress&quot;</span><br><span class="line"></span><br><span class="line">slave-priority 100</span><br><span class="line">#当主库发生宕机时候，哨兵会选择优先级最高的一个称为主库，从库优先级配置默认100，数值越小优先级越高</span><br><span class="line"></span><br><span class="line">slave-read-only yes</span><br><span class="line">#从节点是否只读；默认yes只读，为了保持数据一致性，应保持默认</span><br><span class="line">repl-timeout 60</span><br><span class="line">#与各个阶段主从节点连接超时判断</span><br></pre></td></tr></table></figure>
+<h2 id="psync命令"><a href="#psync命令" class="headerlink" title="psync命令"></a>psync命令</h2><p><a target="_blank" rel="noopener" href="https://imgtu.com/i/gSWqKI"><img src="https://z3.ax1x.com/2021/04/26/gSWqKI.png" alt="gSWqKI.png"></a></p>
+<p>1）首先，从节点根据当前状态，决定如何调用psync命令：</p>
+<ul>
+<li>如果从节点之前未执行过slaveof或最近执行了slaveof no one，则从节点发送命令为psync ? -1，向主节点请求全量复制；</li>
+<li>如果从节点之前执行了slaveof，则发送命令为<strong>psync <runid> <offset></strong>，其中runid为上次复制的主节点的runid，offset为上次复制截止时从节点保存的复制偏移量。</li>
+</ul>
+<p>2）主节点根据收到的psync命令，及当前服务器状态，决定执行全量复制还是部分复制：</p>
+<ul>
+<li>如果主节点版本低于Redis2.8，则返回-ERR回复，此时从节点重新发送sync命令执行全量复制；</li>
+<li>如果主节点版本够新，且runid与从节点发送的runid相同，且从节点发送的offset之后的数据在复制积压缓冲区中都存在，则回复+CONTINUE，表示将进行部分复制，从节点等待主节点发送其缺少的数据即可；</li>
+<li>如果主节点版本够新，但是runid与从节点发送的runid不同，或从节点发送的offset之后的数据已不在复制积压缓冲区中(在队列中被挤出了)，则回复<strong>+FULLRESYNC <runid> <offset></strong>，表示要进行全量复制，其中runid表示主节点当前的runid，offset表示主节点当前的offset，从节点保存这两个值，以备使用。</li>
+</ul>
+<h2 id="psync2"><a href="#psync2" class="headerlink" title="psync2"></a>psync2</h2><p>&emsp;&emsp;redis4.0新版本除了增加混合持久化，还优化了psync（以下称psync2）并实现即使redis实例重启的情况下也能实现部分同步，下面主要介绍psync2实现过程。psync2在psync1基础上新增两个复制id,分别是master_replid和master_replid2</p>
+<ul>
+<li>master_replid: 复制id1(后文简称：replid1)，一个长度为41个字节(40个随机串+’0’)的字符串，每个redis实例都有，和runid没有直接关联，但和runid生成规则相同。当实例变为从实例后，自己的replid1会被主实例的replid1覆盖</li>
+<li>master_replid2：复制id2(后文简称:replid2),默认初始化为全0，用于存储上次主实例的replid1</li>
+</ul>
+<p>在4.0之前的版本，redis复制信息完全丢失，所以每个实例重启后只能进行全量复制，到了4.0版本，任然可以使用部分同步，其实现过程：</p>
+<p><strong>第一步：存储复制信息</strong></p>
+<p>　　redis在关闭时，通过shutdown save,都会调用rdbSaveInfoAuxFields函数，把当前实例的repl-id和repl-offset保存到RDB文件中,当前的RDB存储的数据内容和复制信息是一致性的可通过redis-check-rdb命令查看。</p>
+<p><strong>第二步：重启后加载RDB文件中的复制信息</strong></p>
+<p>　　redis加载RDB文件，会专门处理文件中辅助字段(AUX fields）信息，把其中repl_id和repl_offset加载到实例中，分别赋给master_replid和master_repl_offset两个变量值，特别注意当从库开启了AOF持久化，redis加载顺序发生变化优先加载AOF文件，但是由于aof文件中没有复制信息，所以导致重启后从实例依旧使用全量复制！</p>
+<p><strong>第三步：向主库上报复制信息，判断是否进行部分同步</strong></p>
+<p>　　从实例向主库上报master_replid和master_repl_offset+1；从实例同时满足以下两条件，就可以部分重新同步，否则执行全量同步：</p>
+<ul>
+<li>从实例上报master_replid串，与主实例的master_replid1或replid2有一个相等，用于判断主从未发生改变；</li>
+<li>从实例上报的master_repl_offset+1字节，还存在于主实例的复制积压缓冲区中，用于判断从库丢失部分是否在复制缓冲区中；</li>
+</ul>
+<p>psync2除了解决redis重启使用部分同步外，还为解决在主库故障时候从库切换为主库时候使用部分同步机制。redis从库默认开启复制积压缓冲区功能，以便从库故障切换变化master后，其他落后该从库可以从缓冲区中获取缺少的命令。该过程的实现通过两组replid、offset替换原来的master runid和offset变量实现：</p>
+<ul>
+<li><p>第一组：master_replid和master_repl_offset：如果redis是主实例，则表示为自己的replid和复制偏移量； 如果redis是从实例，则表示为自己主实例的replid1和同步主实例的复制偏移量。</p>
+</li>
+<li><p>第二组：master_replid2和second_repl_offset：无论主从，都表示自己上次主实例repid1和复制偏移量；用于兄弟实例或级联复制，主库故障切换psync。</p>
+</li>
+</ul>
+<p>判断是否使用部分复制条件：如果从库提供的master_replid与master的replid不同，且与master的replid2不同，或同步速度快于master； 就必须进行全量复制，否则执行部分复制。</p>
+<p>以下常见的主从切换都可以使用部分复制：</p>
+<ol>
+<li>一主一从发生切换，A-&gt;B 切换变成 B-&gt;A ;</li>
+<li>一主多从发生切换，兄弟节点变成父子节点时；</li>
+<li>级别复制发生切换， A-&gt;B-&gt;C 切换变成 B-&gt;C-&gt;A；</li>
+</ol>
+<h2 id="心跳机制"><a href="#心跳机制" class="headerlink" title="心跳机制"></a>心跳机制</h2><p>&emsp;&emsp;在命令传播阶段，除了发送写命令，主从节点还维持着心跳机制：PING和REPLCONF ACK。心跳机制对于主从复制的超时判断、数据安全等有作用。</p>
+<h3 id="主-gt-从：PING"><a href="#主-gt-从：PING" class="headerlink" title="主-&gt;从：PING"></a>主-&gt;从：PING</h3><p>&emsp;&emsp;每隔指定的时间，<strong>主节点会向从节点发送PING命令</strong>，这个PING命令的作用，主要是为了让从节点进行超时判断。</p>
+<p>&emsp;&emsp;PING发送的频率由<strong>repl-ping-slave-period</strong>参数控制，单位是秒，默认值是10s。</p>
+<h3 id="从-gt-主：REPLCONF-ACK"><a href="#从-gt-主：REPLCONF-ACK" class="headerlink" title="从-&gt;主：REPLCONF ACK"></a>从-&gt;主：REPLCONF ACK</h3><p>&emsp;&emsp;在命令传播阶段，<strong>从节点会向主节点发送REPLCONF ACK命令，</strong>频率是每秒1次；命令格式为：REPLCONF ACK {offset}，其中offset指从节点保存的复制偏移量。REPLCONF ACK命令的作用包括：</p>
+<ul>
+<li>实时监测主从节点网络状态：该命令会被主节点用于复制超时的判断。此外，在主节点中使用info Replication，可以看到其从节点的状态中的lag值，代表的是主节点上次收到该REPLCONF ACK命令的时间间隔，在正常情况下，该值应该是0或1<ul>
+<li><code>shell redis-cli info replication |grep lag</code> </li>
+</ul>
+</li>
+<li>检测命令丢失：从节点发送了自身的offset，主节点会与自己的offset对比，如果从节点数据缺失（如网络丢包），主节点会推送缺失的数据（这里也会利用复制积压缓冲区）。<strong>注意,offset和复制积压缓冲区，不仅可以用于部分复制，也可以用于处理命令丢失等情形；区别在于前者是在断线重连后进行的，而后者是在主从节点没有断线的情况下进行的。</strong></li>
+<li>辅助保证从节点的数量和延迟：Redis主节点中使用min-slaves-to-write和min-slaves-max-lag参数，来保证主节点在不安全的情况下不会执行写命令；所谓不安全，是指从节点数量太少，或延迟过高。例如min-slaves-to-write和min-slaves-max-lag分别是3和10，含义是如果从节点数量小于3个，或所有从节点的延迟值都大于10s，则主节点拒绝执行写命令。而这里从节点延迟值的获取，就是通过主节点接收到REPLCONF ACK命令的时间来判断的，即前面所说的info Replication中的lag值。</li>
+</ul>
+<h2 id="问题与优化"><a href="#问题与优化" class="headerlink" title="问题与优化"></a>问题与优化</h2><h3 id="读写分离"><a href="#读写分离" class="headerlink" title="读写分离"></a>读写分离</h3><p>&emsp;&emsp;在主从复制基础上实现的读写分离，可以实现Redis的读负载均衡：由主节点提供写服务，由一个或多个从节点提供读服务（多个从节点既可以提高数据冗余程度，也可以最大化读负载能力）；在读负载较大的应用场景下，可以大大提高Redis服务器的并发量。</p>
+<h4 id="（1）延迟与不一致问题"><a href="#（1）延迟与不一致问题" class="headerlink" title="（1）延迟与不一致问题"></a>（1）延迟与不一致问题</h4><p>&emsp;&emsp;由于主从复制的命令传播是异步的，延迟与数据的不一致不可避免。如果应用对数据不一致的接受程度程度较低，可能的优化措施包括：优化主从节点之间的网络环境（如在同机房部署）；监控主从节点延迟（通过offset）判断，如果从节点延迟过大，通知应用不再通过该从节点读取数据；使用集群同时扩展写负载和读负载等。</p>
+<p>&emsp;&emsp;在命令传播阶段以外的其他情况下，从节点的数据不一致可能更加严重，例如连接在数据同步阶段，或从节点失去与主节点的连接时等。从节点的slave-serve-stale-data参数便与此有关：它控制这种情况下从节点的表现；如果为yes（默认值），则从节点仍能够响应客户端的命令，如果为no，则从节点只能响应info、slaveof等少数命令。该参数的设置与应用对数据一致性的要求有关；如果对数据一致性要求很高，则应设置为no。</p>
+<h4 id="（2）数据过期问题"><a href="#（2）数据过期问题" class="headerlink" title="（2）数据过期问题"></a>（2）数据过期问题</h4><p>&emsp;&emsp;在单机版Redis中，存在两种删除策略：</p>
+<ul>
+<li>惰性删除：服务器不会主动删除数据，只有当客户端查询某个数据时，服务器判断该数据是否过期，如果过期则删除。</li>
+<li>定期删除：服务器执行定时任务删除过期数据，但是考虑到内存和CPU的折中（删除会释放内存，但是频繁的删除操作对CPU不友好），该删除的频率和执行时间都受到了限制。</li>
+</ul>
+<p>&emsp;&emsp;在主从复制场景下，为了主从节点的数据一致性，从节点不会主动删除数据，而是由主节点控制从节点中过期数据的删除。由于主节点的惰性删除和定期删除策略，都不能保证主节点及时对过期数据执行删除操作，因此，当客户端通过Redis从节点读取数据时，很容易读取到已经过期的数据。</p>
+<p>&emsp;&emsp;Redis 3.2中，从节点在读取数据时，增加了对数据是否过期的判断：如果该数据已过期，则不返回给客户端；将Redis升级到3.2可以解决数据过期问题。</p>
+<h4 id="（3）故障切换问题"><a href="#（3）故障切换问题" class="headerlink" title="（3）故障切换问题"></a>（3）故障切换问题</h4><p>&emsp;&emsp;在没有使用哨兵的读写分离场景下，应用针对读和写分别连接不同的Redis节点；当主节点或从节点出现问题而发生更改时，需要及时修改应用程序读写Redis数据的连接；连接的切换可以手动进行，或者自己写监控程序进行切换，但前者响应慢、容易出错，后者实现复杂，成本都不算低。</p>
+<h4 id="（4）总结"><a href="#（4）总结" class="headerlink" title="（4）总结"></a>（4）总结</h4><p>&emsp;&emsp;在使用读写分离之前，可以考虑其他方法增加Redis的读负载能力：如尽量优化主节点（减少慢查询、减少持久化等其他情况带来的阻塞等）提高负载能力；使用Redis集群同时提高读负载能力和写负载能力等。如果使用读写分离，可以使用哨兵，使主从节点的故障切换尽可能自动化，并减少对应用程序的侵入。</p>
+<h3 id="复制超时"><a href="#复制超时" class="headerlink" title="复制超时"></a>复制超时</h3><h4 id="超时判断意义"><a href="#超时判断意义" class="headerlink" title="超时判断意义"></a>超时判断意义</h4><p>在复制连接建立过程中及之后，主从节点都有机制判断连接是否超时，其意义在于：</p>
+<p>（1）如果主节点判断连接超时，其会释放相应从节点的连接，从而释放各种资源，否则无效的从节点仍会占用主节点的各种资源（输出缓冲区、带宽、连接等）；此外连接超时的判断可以让主节点更准确的知道当前有效从节点的个数，有助于保证数据安全（配合前面讲到的min-slaves-to-write等参数）。</p>
+<p>（2）如果从节点判断连接超时，则可以及时重新建立连接，避免与主节点数据长期的不一致。</p>
+<h4 id="判断机制"><a href="#判断机制" class="headerlink" title="判断机制"></a>判断机制</h4><p>主从复制超时判断的核心，在于repl-timeout参数，该参数规定了超时时间的阈值（默认60s），对于主节点和从节点同时有效；主从节点触发超时的条件分别如下：</p>
+<p>（1）主节点：每秒1次调用复制定时函数replicationCron()，在其中判断当前时间距离上次收到各个从节点REPLCONF ACK的时间，是否超过了repl-timeout值，如果超过了则释放相应从节点的连接。</p>
+<p>（2）从节点：从节点对超时的判断同样是在复制定时函数中判断，基本逻辑是：</p>
+<ul>
+<li>如果当前处于连接建立阶段，且距离上次收到主节点的信息的时间已超过repl-timeout，则释放与主节点的连接；</li>
+<li>如果当前处于数据同步阶段，且收到主节点的RDB文件的时间超时，则停止数据同步，释放连接；</li>
+<li>如果当前处于命令传播阶段，且距离上次收到主节点的PING命令或数据的时间已超过repl-timeout值，则释放与主节点的连接。</li>
+</ul>
+<h4 id="需要注意"><a href="#需要注意" class="headerlink" title="需要注意"></a>需要注意</h4><ul>
+<li>数据同步阶段：在主从节点进行全量复制bgsave时，主节点需要首先fork子进程将当前数据保存到RDB文件中，然后再将RDB文件通过网络传输到从节点。如果RDB文件过大，主节点在fork子进程+保存RDB文件时耗时过多，可能会导致从节点长时间收不到数据而触发超时；此时从节点会重连主节点，然后再次全量复制，再次超时，再次重连……这是个悲伤的循环。为了避免这种情况的发生，除了注意Redis单机数据量不要过大，另一方面就是适当增大repl-timeout值，具体的大小可以根据bgsave耗时来调整。</li>
+<li>命令传播阶段：如前所述，在该阶段主节点会向从节点发送PING命令，频率由repl-ping-slave-period控制；该参数应明显小于repl-timeout值(后者至少是前者的几倍)。否则，如果两个参数相等或接近，网络抖动导致个别PING命令丢失，此时恰巧主节点也没有向从节点发送数据，则从节点很容易判断超时。</li>
+<li>慢查询导致的阻塞：如果主节点或从节点执行了一些慢查询（如keys *或者对大数据的hgetall等），导致服务器阻塞；阻塞期间无法响应复制连接中对方节点的请求，可能导致复制超时。</li>
+</ul>
+<h3 id="复制中断"><a href="#复制中断" class="headerlink" title="复制中断"></a>复制中断</h3><p>&emsp;&emsp;在全量复制阶段，主节点会将执行的写命令放到复制缓冲区中，该缓冲区存放的数据包括了以下几个时间段内主节点执行的写命令：</p>
+<ul>
+<li>bgsave生成RDB文件</li>
+<li>RDB文件由主节点发往从节点</li>
+<li>从节点清空老数据并载入RDB文件中的数据。</li>
+</ul>
+<p>&emsp;&emsp;当主节点数据量较大，或者主从节点之间网络延迟较大时，可能导致该缓冲区的大小超过了限制，此时主节点会断开与从节点之间的连接；这种情况可能引起全量复制-&gt;复制缓冲区溢出导致连接中断-&gt;重连-&gt;全量复制-&gt;复制缓冲区溢出导致连接中断……的循环。</p>
+<p>&emsp;&emsp;复制缓冲区的大小由client-output-buffer-limit slave {hard limit} {soft limit} {soft seconds}配置，默认值为client-output-buffer-limit slave 256MB 64MB 60，其含义是：如果buffer大于256MB，或者连续60s大于64MB，则主节点会断开与该从节点的连接。该参数是可以通过config set命令动态配置的（即不重启Redis也可以生效）。</p>
+<p><strong>需要注意的是，复制缓冲区是客户端输出缓冲区的一种，主节点会为每一个从节点分别分配复制缓冲区；而复制积压缓冲区则是一个主节点只有一个，无论它有多少个从节点。</strong></p>
+<h3 id="复制选择与优化"><a href="#复制选择与优化" class="headerlink" title="复制选择与优化"></a>复制选择与优化</h3><h4 id="（1）第一次建立复制"><a href="#（1）第一次建立复制" class="headerlink" title="（1）第一次建立复制"></a>（1）第一次建立复制</h4><p>&emsp;&emsp;此时全量复制不可避免，但仍有几点需要注意：</p>
+<ul>
+<li>如果主节点的数据量较大，应该尽量避开流量的高峰期，避免造成阻塞；</li>
+<li>如果有多个从节点需要建立对主节点的复制，可以考虑将几个从节点错开，避免主节点带宽占用过大。此外，如果从节点过多，也可以调整主从复制的拓扑结构，由一主多从结构变为树状结构（中间的节点既是其主节点的从节点，也是其从节点的主节点）；但使用树状结构应该谨慎：虽然主节点的直接从节点减少，降低了主节点的负担，但是多层从节点的延迟增大，数据一致性变差；且结构复杂，维护相当困难。</li>
+</ul>
+<h4 id="（2）主节点重启"><a href="#（2）主节点重启" class="headerlink" title="（2）主节点重启"></a>（2）主节点重启</h4><p>&emsp;&emsp;主节点重启可以分为两种情况来讨论，一种是故障导致宕机，另一种则是有计划的重启。</p>
+<p><strong>主节点宕机</strong></p>
+<p>&emsp;&emsp;主节点宕机重启后，runid会发生变化，因此不能进行部分复制，只能全量复制。</p>
+<p>&emsp;&emsp;实际上在主节点宕机的情况下，应进行故障转移处理，将其中的一个从节点升级为主节点，其他从节点从新的主节点进行复制；且故障转移应尽量的自动化，后面文章将要介绍的哨兵便可以进行自动的故障转移。</p>
+<p><strong>安全重启：debug reload</strong></p>
+<p>&emsp;&emsp;在一些场景下，可能希望对主节点进行重启，例如主节点内存碎片率过高，或者希望调整一些只能在启动时调整的参数。如果使用普通的手段重启主节点，会使得runid发生变化，可能导致不必要的全量复制。</p>
+<p>&emsp;&emsp;为了解决这个问题，Redis提供了debug reload的重启方式：<strong>重启后，主节点的runid和offset都不受影响，</strong>避免了全量复制。</p>
+<p>&emsp;&emsp;但debug reload是一柄双刃剑：它会清空当前内存中的数据，重新从RDB文件中加载，这个过程会导致主节点的阻塞，因此也需要谨慎。</p>
+<h4 id="（3）从节点重启"><a href="#（3）从节点重启" class="headerlink" title="（3）从节点重启"></a>（3）从节点重启</h4><p>&emsp;&emsp;从节点宕机重启后，其保存的主节点的runid会丢失，因此即使再次执行slaveof，也无法进行部分复制。</p>
+<h4 id="（4）网络中断"><a href="#（4）网络中断" class="headerlink" title="（4）网络中断"></a>（4）网络中断</h4><p>如果主从节点之间出现网络问题，造成短时间内网络中断，可以分为多种情况讨论。</p>
+<p>第一种情况：网络问题时间极为短暂，只造成了短暂的丢包，主从节点都没有判定超时（未触发repl-timeout）；此时只需要通过REPLCONF ACK来补充丢失的数据即可。</p>
+<p>第二种情况：网络问题时间很长，主从节点判断超时（触发了repl-timeout），且丢失的数据过多，超过了复制积压缓冲区所能存储的范围；此时主从节点无法进行部分复制，只能进行全量复制。为了尽可能避免这种情况的发生，应该根据实际情况适当调整复制积压缓冲区的大小；此外及时发现并修复网络中断，也可以减少全量复制。</p>
+<p>第三种情况：介于前述两种情况之间，主从节点判断超时，且丢失的数据仍然都在复制积压缓冲区中；此时主从节点可以进行部分复制。</p>
+<h3 id="单机限制"><a href="#单机限制" class="headerlink" title="单机限制"></a>单机限制</h3><ul>
+<li><p>切主：当主节点宕机时，一种常见的容灾策略是将其中一个从节点提升为主节点，并将其他从节点挂载到新的主节点上，此时这些从节点只能进行全量复制；如果Redis单机内存达到10GB，一个从节点的同步时间在几分钟的级别；如果从节点较多，恢复的速度会更慢。如果系统的读负载很高，而这段时间从节点无法提供服务，会对系统造成很大的压力。</p>
+</li>
+<li><p>从库扩容：如果访问量突然增大，此时希望增加从节点分担读负载，如果数据量过大，从节点同步太慢，难以及时应对访问量的暴增。</p>
+</li>
+<li><p>缓冲区溢出：（1）和（2）都是从节点可以正常同步的情形（虽然慢），但是如果数据量过大，导致全量复制阶段主节点的复制缓冲区溢出，从而导致复制中断，则主从节点的数据同步会全量复制-&gt;复制缓冲区溢出导致复制中断-&gt;重连-&gt;全量复制-&gt;复制缓冲区溢出导致复制中断……的循环。</p>
+</li>
+<li><p>超时：如果数据量过大，全量复制阶段主节点fork+保存RDB文件耗时过大，从节点长时间接收不到数据触发超时，主从节点的数据同步同样可能陷入全量复制-&gt;超时导致复制中断-&gt;重连-&gt;全量复制-&gt;超时导致复制中断……的循环。</p>
+</li>
+</ul>
+<p>此外，主节点单机内存除了绝对量不能太大，其占用主机内存的比例也不应过大：最好只使用50%-65%的内存，留下30%-45%的内存用于执行bgsave命令和创建复制缓冲区等。</p>
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><h3 id="开启redis远程连接"><a href="#开启redis远程连接" class="headerlink" title="开启redis远程连接"></a>开启redis远程连接</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim redis.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"><span class="built_in">bind</span> 127.0.0.1</span></span><br><span class="line">protected-mode no</span><br></pre></td></tr></table></figure>
+<p>要是需要绑定特定的IP需要通过防火墙来实现，配置文件中的bind不能实现次功能，或许那个大佬实现了可以告诉我一下</p>
+<h3 id="master-192-168-56-70-6379"><a href="#master-192-168-56-70-6379" class="headerlink" title="master-192.168.56.70:6379"></a>master-192.168.56.70:6379</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set k1 v1</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; info replication</span><br><span class="line"># Replication</span><br><span class="line">role:master</span><br><span class="line">connected_slaves:1</span><br><span class="line">slave0:ip=192.168.56.71,port=6379,state=online,offset=1508,lag=0</span><br><span class="line">master_replid:5ae9347725c5c650d786e3b48b0f205e8041187a</span><br><span class="line">master_replid2:0000000000000000000000000000000000000000</span><br><span class="line">master_repl_offset:1508</span><br><span class="line">second_repl_offset:-1</span><br><span class="line">repl_backlog_active:1</span><br><span class="line">repl_backlog_size:1048576</span><br><span class="line">repl_backlog_first_byte_offset:1</span><br><span class="line">repl_backlog_histlen:1508</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; info server</span><br><span class="line"># Server</span><br><span class="line">redis_version:6.0.6</span><br><span class="line">redis_git_sha1:00000000</span><br><span class="line">redis_git_dirty:0</span><br><span class="line">redis_build_id:954aa123689fad0a</span><br><span class="line">redis_mode:standalone</span><br><span class="line">os:Linux 4.18.0-240.el8.x86_64 x86_64</span><br><span class="line">arch_bits:64</span><br><span class="line">multiplexing_api:epoll</span><br><span class="line">atomicvar_api:atomic-builtin</span><br><span class="line">gcc_version:8.3.1</span><br><span class="line">process_id:1580583</span><br><span class="line">run_id:56e7333a47355e24b4e78f99b949b4be6c2600f2</span><br><span class="line">tcp_port:6379</span><br><span class="line">uptime_in_seconds:400</span><br><span class="line">uptime_in_days:0</span><br><span class="line">hz:10</span><br><span class="line">configured_hz:10</span><br><span class="line">lru_clock:7401241</span><br><span class="line">executable:/root/redis-server</span><br><span class="line">config_file:/root/data/redis-6.0.6/config/6379.conf</span><br></pre></td></tr></table></figure>
+<h3 id="salve-192-168-56-71-6379"><a href="#salve-192-168-56-71-6379" class="headerlink" title="salve-192.168.56.71:6379"></a>salve-192.168.56.71:6379</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; slaveof 192.168.56.70 6379</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; config rewrite</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot; // 这个设置是在主库上设置的，我们在从库上已经可以看到了</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; info replication</span><br><span class="line"># Replication</span><br><span class="line">role:slave</span><br><span class="line">master_host:192.168.56.70</span><br><span class="line">master_port:6379</span><br><span class="line">master_link_status:up</span><br><span class="line">master_last_io_seconds_ago:6</span><br><span class="line">master_sync_in_progress:0</span><br><span class="line">slave_repl_offset:1508</span><br><span class="line">slave_priority:100</span><br><span class="line">slave_read_only:1</span><br><span class="line">connected_slaves:0</span><br><span class="line">master_replid:5ae9347725c5c650d786e3b48b0f205e8041187a</span><br><span class="line">master_replid2:0000000000000000000000000000000000000000</span><br><span class="line">master_repl_offset:1508</span><br><span class="line">second_repl_offset:-1</span><br><span class="line">repl_backlog_active:1</span><br><span class="line">repl_backlog_size:1048576</span><br><span class="line">repl_backlog_first_byte_offset:1</span><br><span class="line">repl_backlog_histlen:1508</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; info server</span><br><span class="line"># Server</span><br><span class="line">redis_version:6.0.12</span><br><span class="line">redis_git_sha1:00000000</span><br><span class="line">redis_git_dirty:0</span><br><span class="line">redis_build_id:75b3e099670a8ed0</span><br><span class="line">redis_mode:standalone</span><br><span class="line">os:Linux 4.18.0-240.el8.x86_64 x86_64</span><br><span class="line">arch_bits:64</span><br><span class="line">multiplexing_api:epoll</span><br><span class="line">atomicvar_api:atomic-builtin</span><br><span class="line">gcc_version:8.3.1</span><br><span class="line">process_id:35903</span><br><span class="line">run_id:033f5a69a7a10f69e0e78408bb3da839cc20f889</span><br><span class="line">tcp_port:6379</span><br><span class="line">uptime_in_seconds:473</span><br><span class="line">uptime_in_days:0</span><br><span class="line">hz:10</span><br><span class="line">configured_hz:10</span><br><span class="line">lru_clock:8729115</span><br><span class="line">executable:/root/redis-server</span><br><span class="line">config_file:/root/data/redis-6.0.12/config/6379.conf</span><br><span class="line">io_threads_active:0</span><br></pre></td></tr></table></figure>
+<h3 id="日志"><a href="#日志" class="headerlink" title="日志"></a>日志</h3><h4 id="master"><a href="#master" class="headerlink" title="master"></a>master</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1580583:M 10 Apr 2021 08:14:36.297 * Replica 192.168.56.71:6379 asks for synchronization</span><br><span class="line">1580583:M 10 Apr 2021 08:14:36.297 * Partial resynchronization not accepted: Replication ID mismatch (Replica asked for &#x27;b69d623bc648420adff4f305362117e65f8d8f08&#x27;, my replication IDs are &#x27;f65cac76237a191f0ea6718b16efb1e1c0705478&#x27; and &#x27;0000000000000000000000000000000000000000&#x27;)</span><br><span class="line">1580583:M 10 Apr 2021 08:14:36.297 * Replication backlog created, my new replication IDs are &#x27;5ae9347725c5c650d786e3b48b0f205e8041187a&#x27; and &#x27;0000000000000000000000000000000000000000&#x27;</span><br><span class="line">1580583:M 10 Apr 2021 08:14:36.297 * Starting BGSAVE for SYNC with target: disk</span><br><span class="line">1580583:M 10 Apr 2021 08:14:36.297 * Background saving started by pid 1580615</span><br><span class="line">1580615:C 10 Apr 2021 08:14:36.299 * DB saved on disk</span><br><span class="line">1580615:C 10 Apr 2021 08:14:36.299 * RDB: 0 MB of memory used by copy-on-write</span><br><span class="line">1580583:M 10 Apr 2021 08:14:36.357 * Background saving terminated with success</span><br><span class="line">1580583:M 10 Apr 2021 08:14:36.357 * Synchronization with replica 192.168.56.71:6379 succeeded</span><br></pre></td></tr></table></figure>
+<h4 id="slave"><a href="#slave" class="headerlink" title="slave"></a>slave</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">35903:S 25 Apr 2021 17:05:23.860 * Before turning into a replica, using my own master parameters to synthesize a cached master: I may be able to synchronize with the new master with just a partial transfer.</span><br><span class="line">35903:S 25 Apr 2021 17:05:23.860 * REPLICAOF 192.168.56.70:6379 enabled (user request from &#x27;id=6 addr=127.0.0.1:33766 fd=8 name= age=11 idle=0 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=47 qbuf-free=32721 argv-mem=24 obl=0 oll=0 omem=0 tot-mem=49824 events=r cmd=slaveof user=default&#x27;)</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.401 * Connecting to MASTER 192.168.56.70:6379</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.401 * MASTER &lt;-&gt; REPLICA sync started</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.401 * Non blocking connect for SYNC fired the event.</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.402 * Master replied to PING, replication can continue...</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.402 * Trying a partial resynchronization (request b69d623bc648420adff4f305362117e65f8d8f08:1).</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.403 * Full resync from master: 5ae9347725c5c650d786e3b48b0f205e8041187a:0</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.403 * Discarding previously cached master state.</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.463 * MASTER &lt;-&gt; REPLICA sync: receiving 175 bytes from master to disk</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.463 * MASTER &lt;-&gt; REPLICA sync: Flushing old data</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.463 * MASTER &lt;-&gt; REPLICA sync: Loading DB in memory</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.464 * Loading RDB produced by version 6.0.6</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.464 * RDB age 1327848 seconds</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.464 * RDB memory usage when created 1.85 Mb</span><br><span class="line">35903:S 25 Apr 2021 17:05:24.464 * MASTER &lt;-&gt; REPLICA sync: Finished with success</span><br><span class="line">35903:S 25 Apr 2021 17:10:17.293 # CONFIG REWRITE executed with success.</span><br></pre></td></tr></table></figure>
+<hr>
+
+    </div>
+
+     <div>
+          
+            <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+          
+     </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>如果，我的文章帮助到您了，求打赏</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wepay.png" alt="Xiao xiao 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Xiao xiao 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Xiao xiao
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.jixiaoxiao.com/article/redis-mmm-master-slave/" title="redis高可用之主从复制">https://www.jixiaoxiao.com/article/redis-mmm-master-slave/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/redis/" rel="tag"><i class="fa fa-tag"></i> redis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/data-struct-base/" rel="prev" title="数据结构基础概念篇">
+      <i class="fa fa-chevron-left"></i> 数据结构基础概念篇
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/redis-use-standard/" rel="next" title="redis开发规范">
+      redis开发规范 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E6%9C%BA%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">单机问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E5%9B%BE"><span class="nav-number">3.</span> <span class="nav-text">架构图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5"><span class="nav-number">5.1.</span> <span class="nav-text">建立连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5"><span class="nav-number">5.2.</span> <span class="nav-text">数据同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E4%BC%A0%E6%92%AD"><span class="nav-number">5.3.</span> <span class="nav-text">命令传播</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6"><span class="nav-number">6.</span> <span class="nav-text">复制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E9%87%8F%E5%A4%8D%E5%88%B6"><span class="nav-number">6.1.</span> <span class="nav-text">全量复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E5%88%86%E5%A4%8D%E5%88%B6"><span class="nav-number">6.2.</span> <span class="nav-text">部分复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E5%81%8F%E7%A7%BB%E9%87%8F"><span class="nav-number">6.2.1.</span> <span class="nav-text">复制偏移量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E7%A7%AF%E5%8E%8B%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">6.2.2.</span> <span class="nav-text">复制积压缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%90%E8%A1%8CID-runid"><span class="nav-number">6.2.3.</span> <span class="nav-text">服务器运行ID(runid)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%90%AF%E4%B8%BB%E4%BB%8E"><span class="nav-number">7.</span> <span class="nav-text">开启主从</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E9%85%8D%E7%BD%AE%E5%8F%82%E6%95%B0"><span class="nav-number">8.</span> <span class="nav-text">主从配置参数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E5%BA%93"><span class="nav-number">8.1.</span> <span class="nav-text">主库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E5%BA%93"><span class="nav-number">8.2.</span> <span class="nav-text">从库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#psync%E5%91%BD%E4%BB%A4"><span class="nav-number">9.</span> <span class="nav-text">psync命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#psync2"><span class="nav-number">10.</span> <span class="nav-text">psync2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%83%E8%B7%B3%E6%9C%BA%E5%88%B6"><span class="nav-number">11.</span> <span class="nav-text">心跳机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB-gt-%E4%BB%8E%EF%BC%9APING"><span class="nav-number">11.1.</span> <span class="nav-text">主-&gt;从：PING</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E-gt-%E4%B8%BB%EF%BC%9AREPLCONF-ACK"><span class="nav-number">11.2.</span> <span class="nav-text">从-&gt;主：REPLCONF ACK</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%8E%E4%BC%98%E5%8C%96"><span class="nav-number">12.</span> <span class="nav-text">问题与优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB"><span class="nav-number">12.1.</span> <span class="nav-text">读写分离</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%BB%B6%E8%BF%9F%E4%B8%8E%E4%B8%8D%E4%B8%80%E8%87%B4%E9%97%AE%E9%A2%98"><span class="nav-number">12.1.1.</span> <span class="nav-text">（1）延迟与不一致问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%95%B0%E6%8D%AE%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98"><span class="nav-number">12.1.2.</span> <span class="nav-text">（2）数据过期问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%95%85%E9%9A%9C%E5%88%87%E6%8D%A2%E9%97%AE%E9%A2%98"><span class="nav-number">12.1.3.</span> <span class="nav-text">（3）故障切换问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E6%80%BB%E7%BB%93"><span class="nav-number">12.1.4.</span> <span class="nav-text">（4）总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E8%B6%85%E6%97%B6"><span class="nav-number">12.2.</span> <span class="nav-text">复制超时</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B6%85%E6%97%B6%E5%88%A4%E6%96%AD%E6%84%8F%E4%B9%89"><span class="nav-number">12.2.1.</span> <span class="nav-text">超时判断意义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%A4%E6%96%AD%E6%9C%BA%E5%88%B6"><span class="nav-number">12.2.2.</span> <span class="nav-text">判断机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F"><span class="nav-number">12.2.3.</span> <span class="nav-text">需要注意</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E4%B8%AD%E6%96%AD"><span class="nav-number">12.3.</span> <span class="nav-text">复制中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E9%80%89%E6%8B%A9%E4%B8%8E%E4%BC%98%E5%8C%96"><span class="nav-number">12.4.</span> <span class="nav-text">复制选择与优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%BB%BA%E7%AB%8B%E5%A4%8D%E5%88%B6"><span class="nav-number">12.4.1.</span> <span class="nav-text">（1）第一次建立复制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E4%B8%BB%E8%8A%82%E7%82%B9%E9%87%8D%E5%90%AF"><span class="nav-number">12.4.2.</span> <span class="nav-text">（2）主节点重启</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E4%BB%8E%E8%8A%82%E7%82%B9%E9%87%8D%E5%90%AF"><span class="nav-number">12.4.3.</span> <span class="nav-text">（3）从节点重启</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E7%BD%91%E7%BB%9C%E4%B8%AD%E6%96%AD"><span class="nav-number">12.4.4.</span> <span class="nav-text">（4）网络中断</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E6%9C%BA%E9%99%90%E5%88%B6"><span class="nav-number">12.5.</span> <span class="nav-text">单机限制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98"><span class="nav-number">13.</span> <span class="nav-text">实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%90%AFredis%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5"><span class="nav-number">13.1.</span> <span class="nav-text">开启redis远程连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#master-192-168-56-70-6379"><span class="nav-number">13.2.</span> <span class="nav-text">master-192.168.56.70:6379</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#salve-192-168-56-71-6379"><span class="nav-number">13.3.</span> <span class="nav-text">salve-192.168.56.71:6379</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%BF%97"><span class="nav-number">13.4.</span> <span class="nav-text">日志</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#master"><span class="nav-number">13.4.1.</span> <span class="nav-text">master</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#slave"><span class="nav-number">13.4.2.</span> <span class="nav-text">slave</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xiao xiao"
+      src="/images/user.png">
+  <p class="site-author-name" itemprop="name">Xiao xiao</p>
+  <div class="site-description" itemprop="description">一个phper的技术栈与生活站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoxiao0301" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoxiao0301" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:simplexiaoxiao@gmail.com" title="E-Mail → mailto:simplexiaoxiao@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xiao xiao</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<script src="/js/love.js"></script>
+</body>
+</html>

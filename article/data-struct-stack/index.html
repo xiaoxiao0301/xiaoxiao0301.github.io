@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-flat-top.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.jixiaoxiao.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="概念 栈是一种有次序的数据项的集合，在栈中，数据项的加入和移除都仅发生在同一端，这一端叫栈顶top，另一端叫栈底base 距离栈底越近的数据项留在栈中的时间就越长，而最新加入栈的数据项会被最先移除，这种次序通常叫做后进先出LIFO(Last In First Out) 栈是一种线性结构，相比较数组，栈对应的操作是数组的子集">
+<meta property="og:type" content="article">
+<meta property="og:title" content="栈">
+<meta property="og:url" content="https://www.jixiaoxiao.com/article/data-struct-stack/index.html">
+<meta property="og:site_name" content="The Station Agent">
+<meta property="og:description" content="概念 栈是一种有次序的数据项的集合，在栈中，数据项的加入和移除都仅发生在同一端，这一端叫栈顶top，另一端叫栈底base 距离栈底越近的数据项留在栈中的时间就越长，而最新加入栈的数据项会被最先移除，这种次序通常叫做后进先出LIFO(Last In First Out) 栈是一种线性结构，相比较数组，栈对应的操作是数组的子集">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-28T07:05:02.000Z">
+<meta property="article:modified_time" content="2021-06-01T08:35:38.523Z">
+<meta property="article:author" content="Xiao xiao">
+<meta property="article:tag" content="php">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.jixiaoxiao.com/article/data-struct-stack/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>栈 | The Station Agent</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">The Station Agent</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">心灵驿站</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-fw fa-heartbeat"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/xiaoxiao0301" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.jixiaoxiao.com/article/data-struct-stack/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/user.png">
+      <meta itemprop="name" content="Xiao xiao">
+      <meta itemprop="description" content="一个phper的技术栈与生活站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="The Station Agent">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          栈
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-28 15:05:02" itemprop="dateCreated datePublished" datetime="2021-05-28T15:05:02+08:00">2021-05-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-06-01 16:35:38" itemprop="dateModified" datetime="2021-06-01T16:35:38+08:00">2021-06-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/data-struct/" itemprop="url" rel="index"><span itemprop="name">数据结构</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ul>
+<li>栈是一种有次序的数据项的集合，在栈中，数据项的加入和移除都仅发生在同一端，这一端叫栈顶top，另一端叫栈底base</li>
+<li>距离栈底越近的数据项留在栈中的时间就越长，而最新加入栈的数据项会被最先移除，这种次序通常叫做后进先出LIFO(Last In First Out)</li>
+<li>栈是一种线性结构，相比较数组，栈对应的操作是数组的子集</li>
+</ul>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>栈定义以下的操作：</p>
+<ul>
+<li>Stack()：创建一个空栈，不包含任何数据项</li>
+<li>push(item)：将item加入栈顶，无返回值</li>
+<li>pop()：将栈顶数据项移除，并返回</li>
+<li>peek()：返回栈顶的数据项但不移除，栈不会被修改</li>
+<li>isEmpty()：返回栈是否为空</li>
+<li>size()：返回栈中有多少个数据项</li>
+</ul>
+<p>ArrayClass.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">stack</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">Exception</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Class ArrayClass</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@package</span> stack</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArrayClass</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@var</span> array</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">array</span> <span class="variable">$data</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数组大小</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@var</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="variable">$size</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * ArrayClass constructor.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data = [];</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getSize</span>(<span class="params"></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;size;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">isEmpty</span>(<span class="params"></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;size == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 向所有元素后添加一个新元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addLastElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;addElement(<span class="keyword">$this</span>-&gt;size, <span class="variable">$element</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 在所有元素前添加一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addFirstElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;addElement(<span class="number">0</span>, <span class="variable">$element</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 在指定位置插入一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed|object $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span>, <span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;添加失败，索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="keyword">$this</span>-&gt;size - <span class="number">1</span>; <span class="variable">$i</span> &gt;= <span class="variable">$index</span>; <span class="variable">$i</span>--) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span> + <span class="number">1</span>] = <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>] = <span class="variable">$element</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取第一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getFirstElement</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;getIndexElement(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取数组最后一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getLastElement</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;getIndexElement(<span class="keyword">$this</span>-&gt;size - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取索引位置的元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 更新索引位置的元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span>, <span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>] = <span class="variable">$element</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数组中是否包含元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">containsElement</span>(<span class="params"><span class="variable">$element</span></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>] == <span class="variable">$element</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 查找元素在数组中的位置，查找失败则返回-1</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">findElement</span>(<span class="params"><span class="variable">$element</span></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>] == <span class="variable">$element</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="variable">$i</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除第一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeFirstElement</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除最后一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeLastElement</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="keyword">$this</span>-&gt;size - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$elementIndex</span> = <span class="keyword">$this</span>-&gt;findElement(<span class="variable">$element</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$elementIndex</span> != -<span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="variable">$elementIndex</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除指定位置上的元素并返回值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$element</span> = <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="variable">$index</span> + <span class="number">1</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span> - <span class="number">1</span>] = <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size--;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$element</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * echo $obj 时触发</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$result</span> = sprintf(<span class="string">&quot;Array:size=%d&quot;</span>, <span class="keyword">$this</span>-&gt;size);</span><br><span class="line">        <span class="variable">$result</span> .= <span class="string">&quot;,data is [&quot;</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="variable">$result</span> .= <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$i</span> != <span class="keyword">$this</span>-&gt;size - <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="variable">$result</span> .= <span class="string">&quot;, &quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$result</span> .= <span class="string">&#x27;]&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Stack.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">stack</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Interface Stack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@package</span> stack</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Stack</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">push</span>(<span class="params"><span class="variable">$element</span></span>)</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">pop</span>(<span class="params"></span>)</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">peek</span>(<span class="params"></span>)</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">isEmpty</span>(<span class="params"></span>)</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getSize</span>(<span class="params"></span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ArrayStack.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">stack</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">Exception</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span> <span class="string">&#x27;ArrayClass.php&#x27;</span>;</span><br><span class="line"><span class="keyword">require_once</span> <span class="string">&#x27;Stack.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 这里实现栈基于上一次实现的数组类，并且将栈顶设置为数组的末尾，栈底是数组的开始</span></span><br><span class="line"><span class="comment"> * 栈只能从一端插入和读取,这里设定从数组的末尾开始</span></span><br><span class="line"><span class="comment"> * Class ArrayStack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@package</span> stack</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArrayStack</span> <span class="keyword">implements</span> <span class="title">Stack</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@var</span> ArrayClass</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> ArrayClass <span class="variable">$arrayClass</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;arrayClass = <span class="keyword">new</span> ArrayClass();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 往栈添加元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">push</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;arrayClass-&gt;addLastElement(<span class="variable">$element</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 取出栈中的元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">pop</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;arrayClass-&gt;removeLastElement();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取栈顶的元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">peek</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;arrayClass-&gt;getLastElement();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断栈内是否是空栈</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">isEmpty</span>(<span class="params"></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;arrayClass-&gt;isEmpty();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取栈的大小</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getSize</span>(<span class="params"></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;arrayClass-&gt;getSize();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$size</span> = <span class="keyword">$this</span>-&gt;arrayClass-&gt;getSize();</span><br><span class="line">        <span class="variable">$result</span> = <span class="string">&quot;stack data: [&quot;</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;arrayClass-&gt;getSize(); <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="variable">$result</span> .= <span class="keyword">$this</span>-&gt;arrayClass-&gt;getIndexElement(<span class="variable">$i</span>);</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$i</span> != <span class="variable">$size</span> - <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="variable">$result</span> .= <span class="string">&quot;, &quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$result</span> .= <span class="string">&#x27;]top&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以使用一下的代码来测试一下我们实现的栈是否ok：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">require_once</span> <span class="string">&#x27;ArrayStack.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$stack</span> = <span class="keyword">new</span> \stack\ArrayStack();</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">10</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="variable">$stack</span>-&gt;push(rand(<span class="number">0</span>, pow(<span class="variable">$i</span> + <span class="number">1</span>, <span class="number">2</span>)));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (<span class="built_in">Exception</span> <span class="variable">$e</span>) &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;add element to stack err: &quot;</span> . <span class="variable">$e</span>-&gt;getMessage();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$stack</span> . PHP_EOL;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;栈顶元素:&quot;</span> . <span class="variable">$stack</span>-&gt;peek() . PHP_EOL;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$stack</span>-&gt;pop() . PHP_EOL;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$stack</span>-&gt;pop() . PHP_EOL;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$stack</span> . PHP_EOL;</span><br></pre></td></tr></table></figure>
+<p>执行结果如下：</p>
+<blockquote>
+<p>stack data: [0, 4, 3, 5, 15, 19, 45, 2, 18, 15]top<br>栈顶元素:15<br>15<br>18<br>stack data: [0, 4, 3, 5, 15, 19, 45, 2]top</p>
+</blockquote>
+<h2 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h2><ul>
+<li>push, 均摊时间复杂度是$O(1)$</li>
+<li>pop,均摊时间复杂度是$O(1)$</li>
+<li>peek,时间复杂度是$O(1)$</li>
+<li>getSize,时间复杂度是$O(1)$</li>
+<li>isEmpty,时间复杂度是$O(1)$</li>
+</ul>
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ul>
+<li>undo操作，编辑器中的Ctrl+Z</li>
+<li>系统调用栈，操作系统</li>
+<li>括号匹配-编译器</li>
+</ul>
+<h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><h3 id="括号匹配"><a href="#括号匹配" class="headerlink" title="括号匹配"></a>括号匹配</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> string $str</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">validStr</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$str</span></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$leftSymbolStr</span> = [<span class="string">&#x27;(&#x27;</span>, <span class="string">&#x27;[&#x27;</span>, <span class="string">&#x27;&#123;&#x27;</span>];</span><br><span class="line">    <span class="variable">$rightSymbolStr</span> = [<span class="string">&#x27;)&#x27;</span>, <span class="string">&#x27;]&#x27;</span>, <span class="string">&#x27;&#125;&#x27;</span>];</span><br><span class="line"></span><br><span class="line">    <span class="variable">$stack</span> = <span class="keyword">new</span> \stack\ArrayStack();</span><br><span class="line">    <span class="variable">$flag</span> = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; strlen(<span class="variable">$str</span>); <span class="variable">$i</span>++) &#123;</span><br><span class="line">       <span class="keyword">if</span> (in_array(<span class="variable">$str</span>[<span class="variable">$i</span>], <span class="variable">$leftSymbolStr</span>)) &#123;</span><br><span class="line">           <span class="variable">$stack</span>-&gt;push(<span class="variable">$str</span>[<span class="variable">$i</span>]);</span><br><span class="line">       &#125; <span class="keyword">else</span> <span class="keyword">if</span> (in_array(<span class="variable">$str</span>[<span class="variable">$i</span>], <span class="variable">$rightSymbolStr</span>)) &#123;</span><br><span class="line">           <span class="keyword">if</span> (<span class="variable">$stack</span>-&gt;isEmpty()) &#123;</span><br><span class="line">               <span class="comment">// 说明已经把左边的括号匹配完了，右括号多了</span></span><br><span class="line">               <span class="variable">$flag</span> = <span class="literal">false</span>;</span><br><span class="line">               <span class="keyword">break</span>;</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               <span class="variable">$leftElement</span> = <span class="variable">$stack</span>-&gt;pop();</span><br><span class="line">               <span class="keyword">if</span> (!checkStrMatch(<span class="variable">$leftElement</span>, <span class="variable">$str</span>[<span class="variable">$i</span>])) &#123;</span><br><span class="line">                   <span class="variable">$flag</span> = <span class="literal">false</span>;</span><br><span class="line">                   <span class="keyword">break</span>;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="keyword">continue</span>;</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$flag</span> &amp;&amp; <span class="variable">$stack</span>-&gt;isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;<span class="subst">&#123;$str&#125;</span> 匹配&quot;</span> . PHP_EOL;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;<span class="subst">&#123;$str&#125;</span> 不匹配&quot;</span> . PHP_EOL;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 利用数组下标判断是否相等</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $leftStr</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $rightStr</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkStrMatch</span>(<span class="params"><span class="variable">$leftStr</span>, <span class="variable">$rightStr</span></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$leftSymbolStr</span> = [<span class="string">&#x27;(&#x27;</span>, <span class="string">&#x27;[&#x27;</span>, <span class="string">&#x27;&#123;&#x27;</span>];</span><br><span class="line">    <span class="variable">$rightSymbolStr</span> = [<span class="string">&#x27;)&#x27;</span>, <span class="string">&#x27;]&#x27;</span>, <span class="string">&#x27;&#125;&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$leftSymbolStr</span>[<span class="variable">$leftStr</span>] == <span class="variable">$rightSymbolStr</span>[<span class="variable">$rightStr</span>]) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$str</span> = <span class="string">&#x27;()[]&#123;&#125;&#x27;</span>;</span><br><span class="line">validStr(<span class="variable">$str</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$testStr2</span> = <span class="string">&quot;(3*5)+(4+6)-(7-8)/)&quot;</span>;</span><br><span class="line">validStr(<span class="variable">$testStr2</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$testStr3</span> = <span class="string">&quot;(3*5)+(4+6)-(7-8)&quot;</span>;</span><br><span class="line">validStr(<span class="variable">$testStr3</span>);</span><br></pre></td></tr></table></figure>
+<p>执行结果如下：</p>
+<blockquote>
+<p>()[]{} 匹配<br>(3*5)+(4+6)-(7-8)/) 不匹配<br>(3*5)+(4+6)-(7-8) 匹配</p>
+</blockquote>
+<h3 id="进制转换"><a href="#进制转换" class="headerlink" title="进制转换"></a>进制转换</h3><p>十进制数字转换成二进制，八进制，十六进制</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  进制转换， 十进制转换成其他进制比如 二，八，十六进制</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">stack</span>\<span class="title">ArrayStack</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span> <span class="string">&#x27;ArrayStack.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$stack</span> = <span class="keyword">new</span> ArrayStack();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 将给定的数字转换成特定的进制</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $system</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $number</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> ArrayStack $stack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getExchangeNumber</span>(<span class="params"><span class="variable">$system</span>, <span class="variable">$number</span>, ArrayStack <span class="variable">$stack</span></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$result</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="keyword">switch</span> (<span class="variable">$system</span>) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;2&quot;</span>:</span><br><span class="line">            <span class="variable">$result</span> = getBinaryNumberSystem(<span class="variable">$number</span>, <span class="variable">$stack</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;8&quot;</span>:</span><br><span class="line">            <span class="variable">$result</span> = getOctalNumberSystem(<span class="variable">$number</span>, <span class="variable">$stack</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;16&quot;</span>:</span><br><span class="line">            <span class="variable">$result</span> = getHexadecimalNumber(<span class="variable">$number</span>, <span class="variable">$stack</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $number</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> ArrayStack $stack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getBinaryNumberSystem</span>(<span class="params"><span class="variable">$number</span>, ArrayStack <span class="variable">$stack</span></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="variable">$number</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="variable">$temp</span> = <span class="variable">$number</span> % <span class="number">2</span> ;</span><br><span class="line">        <span class="variable">$stack</span>-&gt;push(<span class="variable">$temp</span>);</span><br><span class="line">        <span class="variable">$number</span> = (<span class="keyword">int</span>)<span class="variable">$number</span> / <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$result</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (!<span class="variable">$stack</span>-&gt;isEmpty()) &#123;</span><br><span class="line">        <span class="variable">$result</span> .= <span class="variable">$stack</span>-&gt;pop();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $number</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> ArrayStack $stack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getOctalNumberSystem</span>(<span class="params"><span class="variable">$number</span>, ArrayStack <span class="variable">$stack</span></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="variable">$number</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="variable">$temp</span> = <span class="variable">$number</span> % <span class="number">8</span> ;</span><br><span class="line">        <span class="variable">$stack</span>-&gt;push(<span class="variable">$temp</span>);</span><br><span class="line">        <span class="variable">$number</span> = (<span class="keyword">int</span>)<span class="variable">$number</span> / <span class="number">8</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$result</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (!<span class="variable">$stack</span>-&gt;isEmpty()) &#123;</span><br><span class="line">        <span class="variable">$result</span> .= <span class="variable">$stack</span>-&gt;pop();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $number</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> ArrayStack $stack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getHexadecimalNumber</span>(<span class="params"><span class="variable">$number</span>, ArrayStack <span class="variable">$stack</span></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="variable">$number</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="variable">$temp</span> = <span class="variable">$number</span> % <span class="number">16</span> ;</span><br><span class="line">        <span class="variable">$stack</span>-&gt;push(<span class="variable">$temp</span>);</span><br><span class="line">        <span class="variable">$number</span> = (<span class="keyword">int</span>)<span class="variable">$number</span> / <span class="number">16</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$result</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (!<span class="variable">$stack</span>-&gt;isEmpty()) &#123;</span><br><span class="line">        <span class="variable">$result</span> .= <span class="variable">$stack</span>-&gt;pop();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $number</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $base</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> ArrayStack $stack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getBaseConvertNumber</span>(<span class="params"><span class="variable">$number</span>, <span class="variable">$base</span>, ArrayStack <span class="variable">$stack</span></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$digits</span> = [<span class="string">&quot;0&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;9&quot;</span>, <span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="string">&quot;D&quot;</span>, <span class="string">&quot;E&quot;</span>, <span class="string">&quot;F&quot;</span>];</span><br><span class="line">    <span class="keyword">while</span> (<span class="variable">$number</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="variable">$mode</span> = <span class="variable">$number</span> % <span class="variable">$base</span>;</span><br><span class="line">        <span class="variable">$stack</span>-&gt;push(<span class="variable">$mode</span>);</span><br><span class="line">        <span class="variable">$number</span> = (<span class="keyword">int</span>)(<span class="variable">$number</span> / <span class="variable">$base</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$result</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="keyword">while</span> (!<span class="variable">$stack</span>-&gt;isEmpty()) &#123;</span><br><span class="line">        <span class="variable">$result</span> .= <span class="variable">$digits</span>[<span class="variable">$stack</span>-&gt;pop()];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable">$number</span> = <span class="number">128</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;十进制8转换二进制数是:&quot;</span> . getExchangeNumber(<span class="string">&quot;2&quot;</span>, <span class="variable">$number</span>, <span class="variable">$stack</span>) . PHP_EOL;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;十进制8转换八进制数是:&quot;</span> . getExchangeNumber(<span class="string">&quot;8&quot;</span>, <span class="variable">$number</span>, <span class="variable">$stack</span>) . PHP_EOL;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;十进制8转换十六进制数是:&quot;</span> . getExchangeNumber(<span class="string">&quot;16&quot;</span>, <span class="variable">$number</span>, <span class="variable">$stack</span>) . PHP_EOL;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;十进制128转换二进制数是:&quot;</span> . getBaseConvertNumber(<span class="variable">$number</span>, <span class="number">2</span>, <span class="variable">$stack</span>) . PHP_EOL;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;十进制128转换八进制数是:&quot;</span> . getBaseConvertNumber(<span class="variable">$number</span>, <span class="number">8</span>, <span class="variable">$stack</span>) . PHP_EOL;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;十进制128转换十六进制数是:&quot;</span> . getBaseConvertNumber(<span class="variable">$number</span>, <span class="number">16</span>, <span class="variable">$stack</span>) . PHP_EOL;</span><br><span class="line">&#125; <span class="keyword">catch</span> (<span class="built_in">Exception</span> <span class="variable">$e</span>) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;err:&quot;</span> . <span class="variable">$e</span>-&gt;getMessage();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="表达式转换"><a href="#表达式转换" class="headerlink" title="表达式转换"></a>表达式转换</h3><p>中缀转后缀</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">stack</span>\<span class="title">ArrayStack</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span> <span class="string">&#x27;ArrayStack.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$stack</span> = <span class="keyword">new</span> ArrayStack();</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 表达式转换，将中缀表达式（a*b+2）转换成后缀表达式(ab*2+)</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> string $expr 需要转换的中缀表达式</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> ArrayStack $exprStack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">changeExpr</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$expr</span>, ArrayStack <span class="variable">$exprStack</span></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 运算符优先级</span></span><br><span class="line">    <span class="variable">$exprLevel</span> = [<span class="string">&quot;*&quot;</span> =&gt; <span class="number">3</span>, <span class="string">&quot;/&quot;</span> =&gt; <span class="number">3</span>, <span class="string">&quot;+&quot;</span> =&gt; <span class="number">2</span>, <span class="string">&quot;-&quot;</span> =&gt; <span class="number">2</span>, <span class="string">&quot;)&quot;</span> =&gt; <span class="number">1</span>, <span class="string">&quot;(&quot;</span> =&gt; <span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    <span class="variable">$formatExpr</span> = str_split(<span class="variable">$expr</span>);</span><br><span class="line">    <span class="comment">// 存储操作数</span></span><br><span class="line">    <span class="variable">$numberList</span> = [];</span><br><span class="line">    <span class="comment">// 存储操作符</span></span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$formatExpr</span> <span class="keyword">as</span> <span class="variable">$item</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (preg_match(<span class="string">&quot;/\d/&quot;</span>, <span class="variable">$item</span>)  || preg_match(<span class="string">&quot;/\w/&quot;</span>, <span class="variable">$item</span>)) &#123;</span><br><span class="line">            <span class="variable">$numberList</span>[] = <span class="variable">$item</span>;</span><br><span class="line">        &#125; <span class="keyword">elseif</span> (<span class="variable">$item</span> == <span class="string">&quot;(&quot;</span>) &#123;</span><br><span class="line">            <span class="variable">$exprStack</span>-&gt;push(<span class="variable">$item</span>);</span><br><span class="line">        &#125; <span class="keyword">elseif</span> (<span class="variable">$item</span> == <span class="string">&quot;)&quot;</span>) &#123;</span><br><span class="line">            <span class="variable">$topItem</span> = <span class="variable">$exprStack</span>-&gt;pop();</span><br><span class="line">            <span class="keyword">while</span> (<span class="variable">$topItem</span> != <span class="string">&quot;(&quot;</span>) &#123;</span><br><span class="line">                <span class="variable">$numberList</span>[] = <span class="variable">$topItem</span>;</span><br><span class="line">                <span class="variable">$topItem</span> = <span class="variable">$exprStack</span>-&gt;pop();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 比较栈顶的运算符与当前的运算符的优先级</span></span><br><span class="line">            <span class="keyword">while</span> (!<span class="variable">$exprStack</span>-&gt;isEmpty() &amp;&amp; <span class="variable">$exprLevel</span>[<span class="variable">$exprStack</span>-&gt;peek()] &gt;= <span class="variable">$exprLevel</span>[<span class="variable">$item</span>]) &#123;</span><br><span class="line">                <span class="variable">$numberList</span>[] = <span class="variable">$exprStack</span>-&gt;pop();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="variable">$exprStack</span>-&gt;push(<span class="variable">$item</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!<span class="variable">$exprStack</span>-&gt;isEmpty()) &#123;</span><br><span class="line">        <span class="variable">$numberList</span>[] = <span class="variable">$exprStack</span>-&gt;pop();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> join(<span class="string">&quot;&quot;</span>, <span class="variable">$numberList</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$expr</span> = <span class="string">&quot;(a+b)/(c+d)&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$expr</span> .PHP_EOL;</span><br><span class="line"><span class="keyword">echo</span> changeExpr(<span class="variable">$expr</span>, <span class="variable">$stack</span>);</span><br></pre></td></tr></table></figure>
+<p>计算后缀表达式的值</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">stack</span>\<span class="title">ArrayStack</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span> <span class="string">&#x27;ArrayStack.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$stack</span> = <span class="keyword">new</span> ArrayStack();</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 计算后缀表达式值</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $expr</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> ArrayStack $exprStack</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getExprResult</span>(<span class="params"><span class="variable">$expr</span>, ArrayStack <span class="variable">$exprStack</span></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$exprFormat</span> = str_split(<span class="variable">$expr</span>);</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$exprFormat</span> <span class="keyword">as</span> <span class="variable">$item</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (preg_match(<span class="string">&quot;/\d/&quot;</span>, <span class="variable">$item</span>)) &#123;</span><br><span class="line">            <span class="comment">// 操作数存放栈中，先取出来的是右操作数</span></span><br><span class="line">            <span class="variable">$exprStack</span>-&gt;push(<span class="variable">$item</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 取出第一个操作数，是右操作数</span></span><br><span class="line">            <span class="variable">$rightNumber</span> = <span class="variable">$exprStack</span>-&gt;pop();</span><br><span class="line">            <span class="comment">// 取出第二个操作数，是左操作数</span></span><br><span class="line">            <span class="variable">$leftNumber</span> = <span class="variable">$exprStack</span>-&gt;pop();</span><br><span class="line">            <span class="variable">$result</span> = doMath((<span class="keyword">int</span>)<span class="variable">$leftNumber</span>, (<span class="keyword">int</span>)<span class="variable">$rightNumber</span>, <span class="variable">$item</span>);</span><br><span class="line">            <span class="variable">$exprStack</span>-&gt;push(<span class="variable">$result</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$exprStack</span>-&gt;pop();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $left</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $right</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> $operation</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">doMath</span>(<span class="params"><span class="variable">$left</span>, <span class="variable">$right</span>, <span class="variable">$operation</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$result</span> = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (<span class="variable">$operation</span>) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;+&quot;</span>:</span><br><span class="line">            <span class="variable">$result</span> = <span class="variable">$left</span> + <span class="variable">$right</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;-&quot;</span>:</span><br><span class="line">            <span class="variable">$result</span> = <span class="variable">$left</span> - <span class="variable">$right</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;*&quot;</span>:</span><br><span class="line">            <span class="variable">$result</span> = <span class="variable">$left</span> * <span class="variable">$right</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;/&quot;</span>:</span><br><span class="line">            <span class="variable">$result</span> = <span class="variable">$left</span> / <span class="variable">$right</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 后缀表达式求值</span></span><br><span class="line"><span class="variable">$expr</span> = <span class="string">&quot;145*+9+&quot;</span>;</span><br><span class="line">var_dump(getExprResult(<span class="variable">$expr</span>, <span class="variable">$stack</span>));</span><br></pre></td></tr></table></figure>
+<hr>
+
+    </div>
+
+     <div>
+          
+            <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+          
+     </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>如果，我的文章帮助到您了，求打赏</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wepay.png" alt="Xiao xiao 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Xiao xiao 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Xiao xiao
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://www.jixiaoxiao.com/article/data-struct-stack/" title="栈">https://www.jixiaoxiao.com/article/data-struct-stack/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/php/" rel="tag"><i class="fa fa-tag"></i> php</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/data-struct-array/" rel="prev" title="数组">
+      <i class="fa fa-chevron-left"></i> 数组
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/data-struct-queue/" rel="next" title="队列">
+      队列 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">3.</span> <span class="nav-text">时间复杂度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">例题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%AC%E5%8F%B7%E5%8C%B9%E9%85%8D"><span class="nav-number">5.1.</span> <span class="nav-text">括号匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2"><span class="nav-number">5.2.</span> <span class="nav-text">进制转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E8%BE%BE%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-number">5.3.</span> <span class="nav-text">表达式转换</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xiao xiao"
+      src="/images/user.png">
+  <p class="site-author-name" itemprop="name">Xiao xiao</p>
+  <div class="site-description" itemprop="description">一个phper的技术栈与生活站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xiaoxiao0301" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xiaoxiao0301" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:simplexiaoxiao@gmail.com" title="E-Mail → mailto:simplexiaoxiao@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xiao xiao</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<script src="/js/love.js"></script>
+</body>
+</html>
