@@ -393,6 +393,60 @@
       </tags>
   </entry>
   <entry>
+    <title>数组</title>
+    <url>/article/data-struct-array/</url>
+    <content><![CDATA[<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
+<li>简单点来说就是把一堆数据放到一个特殊的变量中，数组中的数据元素是没有类型约束的(PHP里面，java里面一种类型的数组只能存放单一的数据类型)</li>
+<li>数组是有序的，它有下标，这个有点特殊，它是从0开始的，最后一个元素的下标是数组长度-1</li>
+<li>优点是快速查询</li>
+</ul>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Class ArrayClass</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArrayClass</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@var</span> array</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">array</span> <span class="variable">$data</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数组大小</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@var</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="variable">$size</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * ArrayClass constructor.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data = [];</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getSize</span>(<span class="params"></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;size;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">isEmpty</span>(<span class="params"></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;size == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 向所有元素后添加一个新元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addLastElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">       <span class="keyword">$this</span>-&gt;addElement(<span class="keyword">$this</span>-&gt;size, <span class="variable">$element</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 在所有元素前添加一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addFirstElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;addElement(<span class="number">0</span>, <span class="variable">$element</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 在指定位置插入一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span>, <span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;添加失败，索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 别的语言中可能需要进行一下数组容量的判断，超过初始化的容量需要对数组扩容，而我大PHP是不需要的</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="keyword">$this</span>-&gt;size - <span class="number">1</span>; <span class="variable">$i</span> &gt;= <span class="variable">$index</span>; <span class="variable">$i</span>--) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span> + <span class="number">1</span>] = <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>] = <span class="variable">$element</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取索引位置的元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 更新索引位置的元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span>, <span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>] = <span class="variable">$element</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数组中是否包含元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">containsElement</span>(<span class="params"><span class="variable">$element</span></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>] == <span class="variable">$element</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 查找元素在数组中的位置，查找失败则返回-1</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">findElement</span>(<span class="params"><span class="variable">$element</span></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>] == <span class="variable">$element</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="variable">$i</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除第一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeFirstElement</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除最后一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeLastElement</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="keyword">$this</span>-&gt;size - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$elementIndex</span> = <span class="keyword">$this</span>-&gt;findElement(<span class="variable">$element</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$elementIndex</span> != -<span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="variable">$elementIndex</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除指定位置上的元素并返回值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$element</span> = <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="variable">$index</span> + <span class="number">1</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span> - <span class="number">1</span>] = <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size--;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$element</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * echo $obj 时触发</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$result</span> = sprintf(<span class="string">&quot;Array:size=%d&quot;</span>, <span class="keyword">$this</span>-&gt;size);</span><br><span class="line">        <span class="variable">$result</span> .= <span class="string">&quot;,data is [&quot;</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="variable">$result</span> .= <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$i</span> != <span class="keyword">$this</span>-&gt;size - <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="variable">$result</span> .= <span class="string">&quot;, &quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$result</span> .= <span class="string">&#x27;]&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h2><h3 id="添加操作"><a href="#添加操作" class="headerlink" title="添加操作"></a>添加操作</h3><ul>
+<li><p><code>addLastElement($elemtn)</code>方法的时间复杂度是$O(1)$</p>
+</li>
+<li><p><code>addFirstElement($elemtn)</code>方法的时间复杂度是$O(n)$</p>
+</li>
+<li><code>addElement($index, $elemtn)</code>方法的时间复杂度是$O(n)$</li>
+</ul>
+<p>总的来说，添加操作的时间复杂度是$O(n)$</p>
+<h3 id="删除操作"><a href="#删除操作" class="headerlink" title="删除操作"></a>删除操作</h3><ul>
+<li><p><code>removeLastElement($elemtn)</code>方法的时间复杂度是$O(1)$</p>
+</li>
+<li><p><code>removeFirstElement($elemtn)</code>方法的时间复杂度是$O(n)$</p>
+</li>
+<li><code>removeIndexElement($index, $elemtn)</code>方法的时间复杂度是$O(n)$</li>
+</ul>
+<p>总的来说，删除操作的时间复杂度是$O(n)$</p>
+<h3 id="修改操作"><a href="#修改操作" class="headerlink" title="修改操作"></a>修改操作</h3><ul>
+<li><code>setIndexElement($index, $elemtn)</code>方法的时间复杂度是$O(1)$</li>
+</ul>
+<h3 id="查找操作"><a href="#查找操作" class="headerlink" title="查找操作"></a>查找操作</h3><ul>
+<li><code>getIndexElement($index)</code>方法的时间复杂度是$O(1)$</li>
+<li><code>containsElement($element)</code>方法的时间复杂度是$O(n)$</li>
+<li><code>findElement($element)</code>方法的时间复杂度是$O(n)$</li>
+</ul>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>增：$O(n)$</li>
+<li>删：$O(n)$</li>
+<li>改：已知索引$O(1)$；未知索引$O(n)$</li>
+<li>查：已知索引$O(1)$；未知索引$O(n)$</li>
+</ul>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>ArrayStudent.php</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Class ArrayStudent</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArrayStudent</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">string</span> <span class="variable">$name</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="variable">$score</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * ArrayStudent constructor.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $name</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $score</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$name</span>, <span class="keyword">int</span> <span class="variable">$score</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;name = <span class="variable">$name</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;score = <span class="variable">$score</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getName</span>(<span class="params"></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $name</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setName</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$name</span></span>): <span class="title">void</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;name = <span class="variable">$name</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getScore</span>(<span class="params"></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;score;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $score</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setScore</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$score</span></span>): <span class="title">void</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;score = <span class="variable">$score</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> sprintf(<span class="string">&quot;&#123;ArrayStudent, name:%s, score:%d&#125;&quot;</span>, <span class="keyword">$this</span>-&gt;getName(), <span class="keyword">$this</span>-&gt;getScore());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="variable">$arr</span> = <span class="keyword">new</span> ArrayClass();</span><br><span class="line">    <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">10</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="variable">$arr</span>-&gt;addLastElement(<span class="variable">$i</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (<span class="built_in">Exception</span> <span class="variable">$e</span>) &#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="variable">$e</span>-&gt;getMessage() . PHP_EOL;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$arr</span> . PHP_EOL;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$arr</span>-&gt;addElement(<span class="number">1</span>, <span class="number">100</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$arr</span>. PHP_EOL;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$arr</span>-&gt;removeElement(<span class="number">8</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$arr</span>. PHP_EOL;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">require_once</span> <span class="string">&#x27;ArrayStudent.php&#x27;</span>;</span><br><span class="line">    <span class="variable">$arr2</span> = <span class="keyword">new</span> ArrayClass();</span><br><span class="line">    <span class="variable">$arr2</span>-&gt;addLastElement(<span class="keyword">new</span> ArrayStudent(<span class="string">&quot;Tom&quot;</span>, <span class="number">80</span>));</span><br><span class="line">    <span class="variable">$arr2</span>-&gt;addLastElement(<span class="keyword">new</span> ArrayStudent(<span class="string">&quot;Jack&quot;</span>, <span class="number">90</span>));</span><br><span class="line">    <span class="variable">$arr2</span>-&gt;addLastElement(<span class="keyword">new</span> ArrayStudent(<span class="string">&quot;Lili&quot;</span>, <span class="number">85</span>));</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$arr2</span>. PHP_EOL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出如下：</p>
+<p>Array:size=10,data is [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]<br>Array:size=11,data is [0, 100, 1, 2, 3, 4, 5, 6, 7, 8, 9]<br>Array:size=10,data is [0, 100, 1, 2, 3, 4, 5, 6, 7, 9]<br>Array:size=3,data is [{ArrayStudent, name:Tom, score:80}, {ArrayStudent, name:Jack, score:90}, {ArrayStudent, name:Lili, score:85}]</p>
+<h2 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h2><h3 id="均摊复杂度"><a href="#均摊复杂度" class="headerlink" title="均摊复杂度"></a>均摊复杂度</h3><p>&emsp;&emsp;均摊时间复杂度是指，当大部分情况下时间复杂度都很低，只有个别情况下时间复杂度比较高时，并且这些操作之间存在着前后连贯的时序关系，这时候，可以将较高时间复杂度的操作耗时均摊至时间复杂度较低的操作上。这种分析方法叫做摊还分析法，得到的复杂度叫做均摊时间复杂度。拿我们实现的数组中的addLastElement和addFirstElement方法来说的话都是$O(1)$ ,这是由于在添加数组元素是可能会涉及到数组扩容问题(扩容的时间复杂度是$O(n)$)，而PHP不需要数组扩容哈</p>
+<hr>
+]]></content>
+      <categories>
+        <category>数据结构</category>
+      </categories>
+      <tags>
+        <tag>php</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>PHP-CURL</title>
     <url>/article/curl/</url>
     <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p><a href="https://www.php.net/manual/zh/function.curl-init.php,&quot;CURL&quot;">官网</a></p>
@@ -490,6 +544,94 @@
       </tags>
   </entry>
   <entry>
+    <title>数据结构基础概念篇</title>
+    <url>/article/data-struct-base/</url>
+    <content><![CDATA[<h2 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h2><p>&emsp;&emsp;数据是信息的载体，是描述客观事物属性的数、字符以及所有能输入到计算机中并被计算机程序识别和处理的符合的集合。数据是计算机程序加工的原料。</p>
+<p>&emsp;&emsp;数据元素是数据的基本单位，通常作为一个整体进行考虑和处理。</p>
+<p>&emsp;&emsp;一个数据元素可由若干数据项组成，数据项是构成数据元素的不可分割的最小单位。</p>
+<p>&emsp;&emsp;结构是指各个元素之间的关系。</p>
+<p>&emsp;&emsp;数据结构是相互之间存在一种或多种特定关系的数据元素的集合。</p>
+<p>&emsp;&emsp;数据对象是具有相同性质的数据元素的集合，是数据的一个子集。</p>
+<p>&emsp;&emsp;数据结构的三要素包括逻辑结构、物理结构(存储结构)和数据的运算。</p>
+<h2 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h2><p>是指数据之间的逻辑关系有以下几种：</p>
+<ul>
+<li>集合</li>
+<li>线性结构</li>
+<li>树形结构</li>
+<li>图状结构(网状结构)</li>
+</ul>
+<h3 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h3><p>&emsp;&emsp;集合中的各个元素除了同属于一个集合外，并没有其他关系。</p>
+<p><a href="https://imgtu.com/i/cz9p2n"><img src="https://z3.ax1x.com/2021/04/25/cz9p2n.png" alt="cz9p2n.png"></a></p>
+<h3 id="线性结构"><a href="#线性结构" class="headerlink" title="线性结构"></a>线性结构</h3><p>&emsp;&emsp;数据元素之间是一对一的关系。除了第一个元素，所有元素都有唯一前驱；除了最后一个元素，所有元素都有唯一后继。</p>
+<p><a href="https://imgtu.com/i/cz99vq"><img src="https://z3.ax1x.com/2021/04/25/cz99vq.png" alt="cz99vq.png"></a></p>
+<h3 id="树形结构"><a href="#树形结构" class="headerlink" title="树形结构"></a>树形结构</h3><p>&emsp;&emsp;数据元素之间是一对多关系。</p>
+<p><a href="https://imgtu.com/i/cz9irV"><img src="https://z3.ax1x.com/2021/04/25/cz9irV.png" alt="cz9irV.png"></a></p>
+<h3 id="图形结构"><a href="#图形结构" class="headerlink" title="图形结构"></a>图形结构</h3><p>&emsp;&emsp;数据元素之间是多对多的关系。</p>
+<p><a href="https://imgtu.com/i/cz9EaF"><img src="https://z3.ax1x.com/2021/04/25/cz9EaF.png" alt="cz9EaF.png"></a></p>
+<h2 id="物理结构（存储结构）"><a href="#物理结构（存储结构）" class="headerlink" title="物理结构（存储结构）"></a>物理结构（存储结构）</h2><p>数据之间的存储结构有以下几种：</p>
+<ul>
+<li>顺序存储</li>
+<li>链式存储</li>
+<li>索引存储</li>
+<li>散列存储</li>
+</ul>
+<h3 id="顺序存储"><a href="#顺序存储" class="headerlink" title="顺序存储"></a>顺序存储</h3><p>&emsp;&emsp;把逻辑上相邻的元素存储在物理位置上也相邻的存储单元中，元素之间的关系由存储单元的邻接关系来体现。</p>
+<h3 id="链式存储"><a href="#链式存储" class="headerlink" title="链式存储"></a>链式存储</h3><p>&emsp;&emsp;逻辑上相邻的元素在物理位置上可以不相邻，借助指示元素存储地址的指针来表示元素之间的逻辑关系。</p>
+<h3 id="索引存储"><a href="#索引存储" class="headerlink" title="索引存储"></a>索引存储</h3><p>&emsp;&emsp;在存储信息的同时，还建立附加的索引表。索引表中的每项称为索引项，索引项的一般形式是(关键字，地址)</p>
+<h3 id="散列存储"><a href="#散列存储" class="headerlink" title="散列存储"></a>散列存储</h3><p>&emsp;&emsp;根据元素的关键字直接计算出该元素的存储地址，又称哈希(Hash)存储</p>
+<h2 id="数据的运算"><a href="#数据的运算" class="headerlink" title="数据的运算"></a>数据的运算</h2><p>&emsp;&emsp;施加在数据上的运算包括运算的定义和实现。运算的定义是针对逻辑结构的，指出运算的功能；运算的实现是针对存储结构的，指出运算的具体操作步骤。</p>
+<h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><p>数据类型是一个值的集合和定义在此集合上的一组操作的总称。</p>
+<ul>
+<li>原子类型，其值不可再分的数据类型。</li>
+<li>结构类型：其值可以再分解为若干成分(分量)的数据类型。</li>
+</ul>
+<h3 id="抽象数据类型"><a href="#抽象数据类型" class="headerlink" title="抽象数据类型"></a>抽象数据类型</h3><p>抽象数据类型(Abstract Data Type,ADT)是抽象数据组织以及与之相关的操作，ADT用数学化的语音定义数据的逻辑结构、定义运算。与具体的实现无关。</p>
+<h2 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h2><p>&emsp;&emsp;程序 = 算法 + 数据结构，数据结构是要处理的信息，算法是处理信息的具体步骤。</p>
+<h2 id="算法的五个特效"><a href="#算法的五个特效" class="headerlink" title="算法的五个特效"></a>算法的五个特效</h2><ul>
+<li>有穷性：一个算法必须总在执行有穷步之后结束，且每一步都在有穷时间内完成。算法必须是有穷的，而程序可以是无穷的。</li>
+<li>确定性：算法中每条指令必须有确切的含义，对于相同的输入只能得出相同的输出。</li>
+<li>可行性：算法中描述的操作都可以通过已经实现的基本运算执行有限次来实现。</li>
+<li>输入：一个算法有零个或多个输入，这些输入取自于某个特定的对象的集合。</li>
+<li>输出：一个算法有一个或多个输出，这些输出是与输入有着某种特定关系的量。</li>
+</ul>
+<h2 id="衡量算法的标准"><a href="#衡量算法的标准" class="headerlink" title="衡量算法的标准"></a>衡量算法的标准</h2><ul>
+<li>正确性：算法应能够正确地解决求解问题。</li>
+<li>可读性：算法应具有良好的可读性，以帮助人们理解。</li>
+<li>健壮性：输入非法数据时，算法能适当地做出反应或进行处理，而不会产生莫名其妙的输出结果。</li>
+<li>高效率与低存储量需求：也就是说算法执行时省内存，时间复杂度低，空间复杂度低</li>
+</ul>
+<h2 id="算法效率的度量"><a href="#算法效率的度量" class="headerlink" title="算法效率的度量"></a>算法效率的度量</h2><p>&emsp;&emsp;由两个方面决定，分别是时间复杂度和空间复杂度。</p>
+<ul>
+<li>最坏时间复杂度：最坏情况下算法的时间复杂度</li>
+<li>平均时间复杂度：所有输入示例等概率出现的情况下，算法的期望运行时间</li>
+<li>最好时间复杂度：最好情况下算法的时间复杂度</li>
+</ul>
+<h3 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h3><h4 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h4><ul>
+<li><p>加法规则：多项相加，只保留最高阶的项，且系数变为1</p>
+</li>
+<li><p>乘法规则：多项相乘，所有项都要保留</p>
+</li>
+<li>时间复杂度排序：常对幂指阶</li>
+</ul>
+<script type="math/tex; mode=display">O(1) < O(log_2^n) < O(n) < O(nlog_2^n) < O(n^2) < O(n^3) < O(2^n) < o(n!) < O(n^n)</script><h4 id="计算"><a href="#计算" class="headerlink" title="计算"></a>计算</h4><ul>
+<li>顺序执行的代码只会影响常数项，可以忽略</li>
+<li>只需挑循环中的一个基本操作分析它的执行次数与n的关系</li>
+<li>如果有多层嵌套循环，只需关注最深层循环循环了几次</li>
+</ul>
+<h4 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printNumber</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(i &lt;= n) &#123;</span><br><span class="line">        i = i * <span class="number">2</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;number is %d\n&quot;</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;more than number print %d\n&quot;</span>, n);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;我们假设上面算法的时间复杂度是T(n), 假定最里面的while循环循环了x次退出循环，根据while的循环条件可以导出 $2^x &gt; n$ ,计算出 $ x = log_2^n + 1$,最后可以计算出$T(n) = O(x)=O(log_2^n)$</p>
+<h3 id="空间复杂度"><a href="#空间复杂度" class="headerlink" title="空间复杂度"></a>空间复杂度</h3><p>&emsp;&emsp;空间复杂度是对一个算法在运行过程中临时占用存储空间大小的量度，记作 $ S(n) = O(f(n)) $ 。    </p>
+<p>&emsp;&emsp;一个算法在计算机存储器上所占用的存储空间包括存储算法本身所占用的空间，算数和输入输出所占用的存储空间以及临时占用存储空间三个部分，算法的输入输出数据所占用的存储空间是由待解决的问题来决定的，它随当前算法的不同而改变。</p>
+<hr>
+]]></content>
+      <categories>
+        <category>数据结构</category>
+      </categories>
+      <tags>
+        <tag>php</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>常见算法复杂度</title>
     <url>/article/data-struct-example/</url>
     <content><![CDATA[<ol>
@@ -571,60 +713,6 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
       </tags>
   </entry>
   <entry>
-    <title>数组</title>
-    <url>/article/data-struct-array/</url>
-    <content><![CDATA[<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
-<li>简单点来说就是把一堆数据放到一个特殊的变量中，数组中的数据元素是没有类型约束的(PHP里面，java里面一种类型的数组只能存放单一的数据类型)</li>
-<li>数组是有序的，它有下标，这个有点特殊，它是从0开始的，最后一个元素的下标是数组长度-1</li>
-<li>优点是快速查询</li>
-</ul>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Class ArrayClass</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArrayClass</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@var</span> array</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">array</span> <span class="variable">$data</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数组大小</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@var</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="variable">$size</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * ArrayClass constructor.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data = [];</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getSize</span>(<span class="params"></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;size;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">isEmpty</span>(<span class="params"></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;size == <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 向所有元素后添加一个新元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addLastElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">       <span class="keyword">$this</span>-&gt;addElement(<span class="keyword">$this</span>-&gt;size, <span class="variable">$element</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 在所有元素前添加一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addFirstElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;addElement(<span class="number">0</span>, <span class="variable">$element</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 在指定位置插入一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">addElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span>, <span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;添加失败，索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 别的语言中可能需要进行一下数组容量的判断，超过初始化的容量需要对数组扩容，而我大PHP是不需要的</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="keyword">$this</span>-&gt;size - <span class="number">1</span>; <span class="variable">$i</span> &gt;= <span class="variable">$index</span>; <span class="variable">$i</span>--) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span> + <span class="number">1</span>] = <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>] = <span class="variable">$element</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取索引位置的元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 更新索引位置的元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span>, <span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>] = <span class="variable">$element</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数组中是否包含元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mixed $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">containsElement</span>(<span class="params"><span class="variable">$element</span></span>): <span class="title">bool</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>] == <span class="variable">$element</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 查找元素在数组中的位置，查找失败则返回-1</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">findElement</span>(<span class="params"><span class="variable">$element</span></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>] == <span class="variable">$element</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="variable">$i</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除第一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeFirstElement</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除最后一个元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeLastElement</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="keyword">$this</span>-&gt;size - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从数组中删除元素</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> $element</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeElement</span>(<span class="params"><span class="variable">$element</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$elementIndex</span> = <span class="keyword">$this</span>-&gt;findElement(<span class="variable">$element</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$elementIndex</span> != -<span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;removeIndexElement(<span class="variable">$elementIndex</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 删除指定位置上的元素并返回值</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $index</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">removeIndexElement</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$index</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$index</span> &lt; <span class="number">0</span> || <span class="variable">$index</span> &gt; <span class="keyword">$this</span>-&gt;size) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;索引位置错误&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$element</span> = <span class="keyword">$this</span>-&gt;data[<span class="variable">$index</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="variable">$index</span> + <span class="number">1</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span> - <span class="number">1</span>] = <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;size--;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$element</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * echo $obj 时触发</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$result</span> = sprintf(<span class="string">&quot;Array:size=%d&quot;</span>, <span class="keyword">$this</span>-&gt;size);</span><br><span class="line">        <span class="variable">$result</span> .= <span class="string">&quot;,data is [&quot;</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="keyword">$this</span>-&gt;size; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="variable">$result</span> .= <span class="keyword">$this</span>-&gt;data[<span class="variable">$i</span>];</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$i</span> != <span class="keyword">$this</span>-&gt;size - <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="variable">$result</span> .= <span class="string">&quot;, &quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$result</span> .= <span class="string">&#x27;]&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h2><h3 id="添加操作"><a href="#添加操作" class="headerlink" title="添加操作"></a>添加操作</h3><ul>
-<li><p><code>addLastElement($elemtn)</code>方法的时间复杂度是$O(1)$</p>
-</li>
-<li><p><code>addFirstElement($elemtn)</code>方法的时间复杂度是$O(n)$</p>
-</li>
-<li><code>addElement($index, $elemtn)</code>方法的时间复杂度是$O(n)$</li>
-</ul>
-<p>总的来说，添加操作的时间复杂度是$O(n)$</p>
-<h3 id="删除操作"><a href="#删除操作" class="headerlink" title="删除操作"></a>删除操作</h3><ul>
-<li><p><code>removeLastElement($elemtn)</code>方法的时间复杂度是$O(1)$</p>
-</li>
-<li><p><code>removeFirstElement($elemtn)</code>方法的时间复杂度是$O(n)$</p>
-</li>
-<li><code>removeIndexElement($index, $elemtn)</code>方法的时间复杂度是$O(n)$</li>
-</ul>
-<p>总的来说，删除操作的时间复杂度是$O(n)$</p>
-<h3 id="修改操作"><a href="#修改操作" class="headerlink" title="修改操作"></a>修改操作</h3><ul>
-<li><code>setIndexElement($index, $elemtn)</code>方法的时间复杂度是$O(1)$</li>
-</ul>
-<h3 id="查找操作"><a href="#查找操作" class="headerlink" title="查找操作"></a>查找操作</h3><ul>
-<li><code>getIndexElement($index)</code>方法的时间复杂度是$O(1)$</li>
-<li><code>containsElement($element)</code>方法的时间复杂度是$O(n)$</li>
-<li><code>findElement($element)</code>方法的时间复杂度是$O(n)$</li>
-</ul>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
-<li>增：$O(n)$</li>
-<li>删：$O(n)$</li>
-<li>改：已知索引$O(1)$；未知索引$O(n)$</li>
-<li>查：已知索引$O(1)$；未知索引$O(n)$</li>
-</ul>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>ArrayStudent.php</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Class ArrayStudent</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ArrayStudent</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">string</span> <span class="variable">$name</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="variable">$score</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * ArrayStudent constructor.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $name</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $score</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$name</span>, <span class="keyword">int</span> <span class="variable">$score</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;name = <span class="variable">$name</span>;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;score = <span class="variable">$score</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> string</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getName</span>(<span class="params"></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $name</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setName</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$name</span></span>): <span class="title">void</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;name = <span class="variable">$name</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getScore</span>(<span class="params"></span>): <span class="title">int</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;score;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> int $score</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">setScore</span>(<span class="params"><span class="keyword">int</span> <span class="variable">$score</span></span>): <span class="title">void</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">$this</span>-&gt;score = <span class="variable">$score</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> sprintf(<span class="string">&quot;&#123;ArrayStudent, name:%s, score:%d&#125;&quot;</span>, <span class="keyword">$this</span>-&gt;getName(), <span class="keyword">$this</span>-&gt;getScore());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="variable">$arr</span> = <span class="keyword">new</span> ArrayClass();</span><br><span class="line">    <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="number">10</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="variable">$arr</span>-&gt;addLastElement(<span class="variable">$i</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (<span class="built_in">Exception</span> <span class="variable">$e</span>) &#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="variable">$e</span>-&gt;getMessage() . PHP_EOL;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$arr</span> . PHP_EOL;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$arr</span>-&gt;addElement(<span class="number">1</span>, <span class="number">100</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$arr</span>. PHP_EOL;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$arr</span>-&gt;removeElement(<span class="number">8</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$arr</span>. PHP_EOL;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">require_once</span> <span class="string">&#x27;ArrayStudent.php&#x27;</span>;</span><br><span class="line">    <span class="variable">$arr2</span> = <span class="keyword">new</span> ArrayClass();</span><br><span class="line">    <span class="variable">$arr2</span>-&gt;addLastElement(<span class="keyword">new</span> ArrayStudent(<span class="string">&quot;Tom&quot;</span>, <span class="number">80</span>));</span><br><span class="line">    <span class="variable">$arr2</span>-&gt;addLastElement(<span class="keyword">new</span> ArrayStudent(<span class="string">&quot;Jack&quot;</span>, <span class="number">90</span>));</span><br><span class="line">    <span class="variable">$arr2</span>-&gt;addLastElement(<span class="keyword">new</span> ArrayStudent(<span class="string">&quot;Lili&quot;</span>, <span class="number">85</span>));</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$arr2</span>. PHP_EOL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出如下：</p>
-<p>Array:size=10,data is [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]<br>Array:size=11,data is [0, 100, 1, 2, 3, 4, 5, 6, 7, 8, 9]<br>Array:size=10,data is [0, 100, 1, 2, 3, 4, 5, 6, 7, 9]<br>Array:size=3,data is [{ArrayStudent, name:Tom, score:80}, {ArrayStudent, name:Jack, score:90}, {ArrayStudent, name:Lili, score:85}]</p>
-<h2 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h2><h3 id="均摊复杂度"><a href="#均摊复杂度" class="headerlink" title="均摊复杂度"></a>均摊复杂度</h3><p>&emsp;&emsp;均摊时间复杂度是指，当大部分情况下时间复杂度都很低，只有个别情况下时间复杂度比较高时，并且这些操作之间存在着前后连贯的时序关系，这时候，可以将较高时间复杂度的操作耗时均摊至时间复杂度较低的操作上。这种分析方法叫做摊还分析法，得到的复杂度叫做均摊时间复杂度。拿我们实现的数组中的addLastElement和addFirstElement方法来说的话都是$O(1)$ ,这是由于在添加数组元素是可能会涉及到数组扩容问题(扩容的时间复杂度是$O(n)$)，而PHP不需要数组扩容哈</p>
-<hr>
-]]></content>
-      <categories>
-        <category>数据结构</category>
-      </categories>
-      <tags>
-        <tag>php</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>插入排序</title>
     <url>/article/data-struct-insertion-sort/</url>
     <content><![CDATA[<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><font color="red">
@@ -682,18 +770,6 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
       </tags>
   </entry>
   <entry>
-    <title>队列</title>
-    <url>/article/data-struct-queue/</url>
-    <content><![CDATA[<hr>
-]]></content>
-      <categories>
-        <category>数据结构</category>
-      </categories>
-      <tags>
-        <tag>php</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>线性查找</title>
     <url>/article/data-struct-linear-search/</url>
     <content><![CDATA[<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>&emsp;&emsp;线性查找算法，就是在一个数组中查找给定的元素，如果存在返回数组元素的下标，如果不存在返回-1</p>
@@ -708,6 +784,18 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
 <p>我们将使用phpunit来测试我们刚实现的查找算法，具体的phpunit使用请查阅官方文档，<a href="https://phpunit.readthedocs.io/zh_CN/latest/installation.html">传送地址</a> ， 我在每一个方法上标注了如何去执行对应的测试方法</p>
 <h2 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h2><p>&emsp;&emsp;通过以上的算法我们不难看出，当我们要查找的元素在数组中恰好是数组的第一个元素是这个时候程序只需要执行一次就退出了，这个时候的时间复杂度就是$ O(1) $, 当我们要查找的元素在数组最后一个位置或者不在数组中时，这个时候时间复杂度就和数组的长度有关系了，我们假定这个时间数组长度是n，那么此时算法的时间复杂度就是$O(n)$ ,这个就是在计算算法的时间复杂度是有最好时间复杂度和最坏时间复杂度，通常都是按最坏时间复杂度来表示的,因此线性查找算法的时间复杂度是$ O(n)$。</p>
 <hr>
+]]></content>
+      <categories>
+        <category>数据结构</category>
+      </categories>
+      <tags>
+        <tag>php</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>队列</title>
+    <url>/article/data-struct-queue/</url>
+    <content><![CDATA[<hr>
 ]]></content>
       <categories>
         <category>数据结构</category>
@@ -836,94 +924,6 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
       <tags>
         <tag>mac</tag>
         <tag>go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>数据结构基础概念篇</title>
-    <url>/article/data-struct-base/</url>
-    <content><![CDATA[<h2 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h2><p>&emsp;&emsp;数据是信息的载体，是描述客观事物属性的数、字符以及所有能输入到计算机中并被计算机程序识别和处理的符合的集合。数据是计算机程序加工的原料。</p>
-<p>&emsp;&emsp;数据元素是数据的基本单位，通常作为一个整体进行考虑和处理。</p>
-<p>&emsp;&emsp;一个数据元素可由若干数据项组成，数据项是构成数据元素的不可分割的最小单位。</p>
-<p>&emsp;&emsp;结构是指各个元素之间的关系。</p>
-<p>&emsp;&emsp;数据结构是相互之间存在一种或多种特定关系的数据元素的集合。</p>
-<p>&emsp;&emsp;数据对象是具有相同性质的数据元素的集合，是数据的一个子集。</p>
-<p>&emsp;&emsp;数据结构的三要素包括逻辑结构、物理结构(存储结构)和数据的运算。</p>
-<h2 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h2><p>是指数据之间的逻辑关系有以下几种：</p>
-<ul>
-<li>集合</li>
-<li>线性结构</li>
-<li>树形结构</li>
-<li>图状结构(网状结构)</li>
-</ul>
-<h3 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h3><p>&emsp;&emsp;集合中的各个元素除了同属于一个集合外，并没有其他关系。</p>
-<p><a href="https://imgtu.com/i/cz9p2n"><img src="https://z3.ax1x.com/2021/04/25/cz9p2n.png" alt="cz9p2n.png"></a></p>
-<h3 id="线性结构"><a href="#线性结构" class="headerlink" title="线性结构"></a>线性结构</h3><p>&emsp;&emsp;数据元素之间是一对一的关系。除了第一个元素，所有元素都有唯一前驱；除了最后一个元素，所有元素都有唯一后继。</p>
-<p><a href="https://imgtu.com/i/cz99vq"><img src="https://z3.ax1x.com/2021/04/25/cz99vq.png" alt="cz99vq.png"></a></p>
-<h3 id="树形结构"><a href="#树形结构" class="headerlink" title="树形结构"></a>树形结构</h3><p>&emsp;&emsp;数据元素之间是一对多关系。</p>
-<p><a href="https://imgtu.com/i/cz9irV"><img src="https://z3.ax1x.com/2021/04/25/cz9irV.png" alt="cz9irV.png"></a></p>
-<h3 id="图形结构"><a href="#图形结构" class="headerlink" title="图形结构"></a>图形结构</h3><p>&emsp;&emsp;数据元素之间是多对多的关系。</p>
-<p><a href="https://imgtu.com/i/cz9EaF"><img src="https://z3.ax1x.com/2021/04/25/cz9EaF.png" alt="cz9EaF.png"></a></p>
-<h2 id="物理结构（存储结构）"><a href="#物理结构（存储结构）" class="headerlink" title="物理结构（存储结构）"></a>物理结构（存储结构）</h2><p>数据之间的存储结构有以下几种：</p>
-<ul>
-<li>顺序存储</li>
-<li>链式存储</li>
-<li>索引存储</li>
-<li>散列存储</li>
-</ul>
-<h3 id="顺序存储"><a href="#顺序存储" class="headerlink" title="顺序存储"></a>顺序存储</h3><p>&emsp;&emsp;把逻辑上相邻的元素存储在物理位置上也相邻的存储单元中，元素之间的关系由存储单元的邻接关系来体现。</p>
-<h3 id="链式存储"><a href="#链式存储" class="headerlink" title="链式存储"></a>链式存储</h3><p>&emsp;&emsp;逻辑上相邻的元素在物理位置上可以不相邻，借助指示元素存储地址的指针来表示元素之间的逻辑关系。</p>
-<h3 id="索引存储"><a href="#索引存储" class="headerlink" title="索引存储"></a>索引存储</h3><p>&emsp;&emsp;在存储信息的同时，还建立附加的索引表。索引表中的每项称为索引项，索引项的一般形式是(关键字，地址)</p>
-<h3 id="散列存储"><a href="#散列存储" class="headerlink" title="散列存储"></a>散列存储</h3><p>&emsp;&emsp;根据元素的关键字直接计算出该元素的存储地址，又称哈希(Hash)存储</p>
-<h2 id="数据的运算"><a href="#数据的运算" class="headerlink" title="数据的运算"></a>数据的运算</h2><p>&emsp;&emsp;施加在数据上的运算包括运算的定义和实现。运算的定义是针对逻辑结构的，指出运算的功能；运算的实现是针对存储结构的，指出运算的具体操作步骤。</p>
-<h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><p>数据类型是一个值的集合和定义在此集合上的一组操作的总称。</p>
-<ul>
-<li>原子类型，其值不可再分的数据类型。</li>
-<li>结构类型：其值可以再分解为若干成分(分量)的数据类型。</li>
-</ul>
-<h3 id="抽象数据类型"><a href="#抽象数据类型" class="headerlink" title="抽象数据类型"></a>抽象数据类型</h3><p>抽象数据类型(Abstract Data Type,ADT)是抽象数据组织以及与之相关的操作，ADT用数学化的语音定义数据的逻辑结构、定义运算。与具体的实现无关。</p>
-<h2 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h2><p>&emsp;&emsp;程序 = 算法 + 数据结构，数据结构是要处理的信息，算法是处理信息的具体步骤。</p>
-<h2 id="算法的五个特效"><a href="#算法的五个特效" class="headerlink" title="算法的五个特效"></a>算法的五个特效</h2><ul>
-<li>有穷性：一个算法必须总在执行有穷步之后结束，且每一步都在有穷时间内完成。算法必须是有穷的，而程序可以是无穷的。</li>
-<li>确定性：算法中每条指令必须有确切的含义，对于相同的输入只能得出相同的输出。</li>
-<li>可行性：算法中描述的操作都可以通过已经实现的基本运算执行有限次来实现。</li>
-<li>输入：一个算法有零个或多个输入，这些输入取自于某个特定的对象的集合。</li>
-<li>输出：一个算法有一个或多个输出，这些输出是与输入有着某种特定关系的量。</li>
-</ul>
-<h2 id="衡量算法的标准"><a href="#衡量算法的标准" class="headerlink" title="衡量算法的标准"></a>衡量算法的标准</h2><ul>
-<li>正确性：算法应能够正确地解决求解问题。</li>
-<li>可读性：算法应具有良好的可读性，以帮助人们理解。</li>
-<li>健壮性：输入非法数据时，算法能适当地做出反应或进行处理，而不会产生莫名其妙的输出结果。</li>
-<li>高效率与低存储量需求：也就是说算法执行时省内存，时间复杂度低，空间复杂度低</li>
-</ul>
-<h2 id="算法效率的度量"><a href="#算法效率的度量" class="headerlink" title="算法效率的度量"></a>算法效率的度量</h2><p>&emsp;&emsp;由两个方面决定，分别是时间复杂度和空间复杂度。</p>
-<ul>
-<li>最坏时间复杂度：最坏情况下算法的时间复杂度</li>
-<li>平均时间复杂度：所有输入示例等概率出现的情况下，算法的期望运行时间</li>
-<li>最好时间复杂度：最好情况下算法的时间复杂度</li>
-</ul>
-<h3 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h3><h4 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h4><ul>
-<li><p>加法规则：多项相加，只保留最高阶的项，且系数变为1</p>
-</li>
-<li><p>乘法规则：多项相乘，所有项都要保留</p>
-</li>
-<li>时间复杂度排序：常对幂指阶</li>
-</ul>
-<script type="math/tex; mode=display">O(1) < O(log_2^n) < O(n) < O(nlog_2^n) < O(n^2) < O(n^3) < O(2^n) < o(n!) < O(n^n)</script><h4 id="计算"><a href="#计算" class="headerlink" title="计算"></a>计算</h4><ul>
-<li>顺序执行的代码只会影响常数项，可以忽略</li>
-<li>只需挑循环中的一个基本操作分析它的执行次数与n的关系</li>
-<li>如果有多层嵌套循环，只需关注最深层循环循环了几次</li>
-</ul>
-<h4 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printNumber</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span>(i &lt;= n) &#123;</span><br><span class="line">        i = i * <span class="number">2</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;number is %d\n&quot;</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;more than number print %d\n&quot;</span>, n);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;我们假设上面算法的时间复杂度是T(n), 假定最里面的while循环循环了x次退出循环，根据while的循环条件可以导出 $2^x &gt; n$ ,计算出 $ x = log_2^n + 1$,最后可以计算出$T(n) = O(x)=O(log_2^n)$</p>
-<h3 id="空间复杂度"><a href="#空间复杂度" class="headerlink" title="空间复杂度"></a>空间复杂度</h3><p>&emsp;&emsp;空间复杂度是对一个算法在运行过程中临时占用存储空间大小的量度，记作 $ S(n) = O(f(n)) $ 。    </p>
-<p>&emsp;&emsp;一个算法在计算机存储器上所占用的存储空间包括存储算法本身所占用的空间，算数和输入输出所占用的存储空间以及临时占用存储空间三个部分，算法的输入输出数据所占用的存储空间是由待解决的问题来决定的，它随当前算法的不同而改变。</p>
-<hr>
-]]></content>
-      <categories>
-        <category>数据结构</category>
-      </categories>
-      <tags>
-        <tag>php</tag>
       </tags>
   </entry>
   <entry>
@@ -1218,6 +1218,96 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
       </tags>
   </entry>
   <entry>
+    <title>redis基础篇之通用命令篇</title>
+    <url>/article/redis-base-common-command/</url>
+    <content><![CDATA[<p>记录一下redis的通用操作命令</p>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><h3 id="keys"><a href="#keys" class="headerlink" title="keys"></a>keys</h3><blockquote>
+<p>keys pattern</p>
+<ul>
+<li>遍历key,有3个通配符<ul>
+<li>? 匹配单个字符</li>
+<li>* 匹配任意多个字符</li>
+<li>[] 匹配括号内的某一个字符</li>
+</ul>
+</li>
+<li>keys命令一般不在生产环境使用，在主从节点的从节点上进行操作</li>
+<li>时间复杂度:O(n)</li>
+</ul>
+</blockquote>
+<h3 id="dbsize"><a href="#dbsize" class="headerlink" title="dbsize"></a>dbsize</h3><blockquote>
+<p>dbsize</p>
+<ul>
+<li>计算当前数据库的key的个数</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+</blockquote>
+<h3 id="select"><a href="#select" class="headerlink" title="select"></a>select</h3><blockquote>
+<p>select dbNumber</p>
+<ul>
+<li>切换到其他（number）数据库，默认当前处于0号数据库</li>
+</ul>
+</blockquote>
+<h3 id="exists"><a href="#exists" class="headerlink" title="exists"></a>exists</h3><blockquote>
+<p>exists key</p>
+<ul>
+<li>检查key是否存在</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+</blockquote>
+<h3 id="del"><a href="#del" class="headerlink" title="del"></a>del</h3><blockquote>
+<p>del key</p>
+<ul>
+<li>删除指定的key-value</li>
+</ul>
+</blockquote>
+<h3 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h3><blockquote>
+<p>expire key seconds</p>
+<ul>
+<li>设置key在second秒后过期</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+</blockquote>
+<h3 id="ttl"><a href="#ttl" class="headerlink" title="ttl"></a>ttl</h3><blockquote>
+<p>ttl key</p>
+<ul>
+<li>查看key的过期时间，就是剩余多少秒过期<ul>
+<li>-1 ，表示key存在，并且没有过期时间</li>
+<li>-2 ，表示key已经不存在</li>
+<li>5， 表示还有5秒就过期,这里的5指代的是大于0的整数</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h3 id="type"><a href="#type" class="headerlink" title="type"></a>type</h3><blockquote>
+<p>type key</p>
+<ul>
+<li>返回key的类型</li>
+<li>时间复杂度:O(1)</li>
+</ul>
+</blockquote>
+<h3 id="persist"><a href="#persist" class="headerlink" title="persist"></a>persist</h3><blockquote>
+<p>persist key</p>
+<ul>
+<li>设置key永远不过期</li>
+</ul>
+</blockquote>
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><h3 id="keys-1"><a href="#keys-1" class="headerlink" title="keys"></a>keys</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line"> 1) &quot;k7&quot;</span><br><span class="line"> 2) &quot;k3&quot;</span><br><span class="line"> 3) &quot;k5&quot;</span><br><span class="line"> 4) &quot;kn1&quot;</span><br><span class="line"> 5) &quot;s2&quot;</span><br><span class="line"> 6) &quot;k4&quot;</span><br><span class="line"> 7) &quot;k2&quot;</span><br><span class="line"> 8) &quot;k1&quot;</span><br><span class="line"> 9) &quot;s1&quot;</span><br><span class="line">10) &quot;s3&quot;</span><br><span class="line">11) &quot;k6&quot;</span><br><span class="line">12) &quot;kn2&quot;</span><br><span class="line">127.0.0.1:6379&gt; keys k?</span><br><span class="line">1) &quot;k7&quot;</span><br><span class="line">2) &quot;k3&quot;</span><br><span class="line">3) &quot;k5&quot;</span><br><span class="line">4) &quot;k4&quot;</span><br><span class="line">5) &quot;k2&quot;</span><br><span class="line">6) &quot;k1&quot;</span><br><span class="line">7) &quot;k6&quot;</span><br><span class="line">127.0.0.1:6379&gt; keys k[1]</span><br><span class="line">1) &quot;k1&quot;</span><br><span class="line">127.0.0.1:6379&gt; keys k[1,23,4,6]</span><br><span class="line">1) &quot;k3&quot;</span><br><span class="line">2) &quot;k4&quot;</span><br><span class="line">3) &quot;k2&quot;</span><br><span class="line">4) &quot;k1&quot;</span><br><span class="line">5) &quot;k6&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="dbsize-1"><a href="#dbsize-1" class="headerlink" title="dbsize"></a>dbsize</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; dbsize</span><br><span class="line">(integer) 12</span><br></pre></td></tr></table></figure>
+<h3 id="exists-1"><a href="#exists-1" class="headerlink" title="exists"></a>exists</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; exists k9</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; exists k7</span><br><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+<h3 id="ttl-1"><a href="#ttl-1" class="headerlink" title="ttl"></a>ttl</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ttl k1</span><br><span class="line">(integer) -1</span><br><span class="line">127.0.0.1:6379&gt; expire k1 12</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; expire k1 120</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl k1</span><br><span class="line">(integer) 118</span><br><span class="line">127.0.0.1:6379&gt; persist k1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl k1</span><br><span class="line">(integer) -1</span><br></pre></td></tr></table></figure>
+<h3 id="del-1"><a href="#del-1" class="headerlink" title="del"></a>del</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; del kn2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get kn2</span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
+<h3 id="select-1"><a href="#select-1" class="headerlink" title="select"></a>select</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; select 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[1]&gt; dbsize</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379[1]&gt; select 0</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; dbsize</span><br><span class="line">(integer) 11</span><br></pre></td></tr></table></figure>
+<h3 id="expire-1"><a href="#expire-1" class="headerlink" title="expire"></a>expire</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set s2 helloworld</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl s2</span><br><span class="line">(integer) -1</span><br><span class="line">127.0.0.1:6379&gt; expire s2 120</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl s2</span><br><span class="line">(integer) 118</span><br><span class="line">127.0.0.1:6379&gt; ttl s2</span><br><span class="line">(integer) -2</span><br></pre></td></tr></table></figure>
+<hr>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>邮件</title>
     <url>/article/mail/</url>
     <content><![CDATA[<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><ul>
@@ -1346,6 +1436,160 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
       </categories>
       <tags>
         <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis位图</title>
+    <url>/article/redis-bitmap/</url>
+    <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ol>
+<li>BitMap也称位图，位图不是真正的数据类型，是定义在字符串类型中，一个字符串类型的值最多能存储512M字节的内容</li>
+<li>位图其实就是byte[]数组，用二进制表示，只有0和1两个数字，是通过1个bit位来表示某个元素对应的值或者状态,也就是说一个bit能存储的最多信息是2</li>
+<li>位数组是自动扩展的，如果设置了某个偏移位置超出了现有范围，就会自动将位数组进行零扩充</li>
+<li>有符号数是指获取的位数组中第一个位是符号位，剩下的才是值。如果第一位是1，那就是负数。无符号数表示非负数，没有符号位，获取的位数组全部都是值。有符号数最多可以获取64位，无符号数只能获取63位，因为redis协议中的integer是有符号数，最大位64位，不能传递64位无符号值。</li>
+</ol>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><h3 id="setbit"><a href="#setbit" class="headerlink" title="setbit"></a>setbit</h3><blockquote>
+<p>setbit key offset value</p>
+</blockquote>
+<ul>
+<li>给位图指定索引设置值</li>
+</ul>
+<h3 id="getbit"><a href="#getbit" class="headerlink" title="getbit"></a>getbit</h3><blockquote>
+<p>getbit key offset</p>
+</blockquote>
+<ul>
+<li>获取位图指定索引的值</li>
+</ul>
+<h3 id="bitcount"><a href="#bitcount" class="headerlink" title="bitcount"></a>bitcount</h3><blockquote>
+<p>bitcount key [start end]</p>
+</blockquote>
+<ul>
+<li>获取位图指定范围(start到end，单位为字节，如果不指定就是获取全部)位值为1的个数</li>
+</ul>
+<h3 id="bitop"><a href="#bitop" class="headerlink" title="bitop"></a>bitop</h3><blockquote>
+<p>bitop op destkey key [key…..]</p>
+</blockquote>
+<ul>
+<li>对一个或多个保存二进制位的字符串key进行位操作，并将结果保存在destkey上，op有以下四种值<ul>
+<li>and，逻辑与</li>
+<li>or，逻辑或</li>
+<li>not，逻辑非</li>
+<li>xor，逻辑异或</li>
+</ul>
+</li>
+<li>除了not操作符外，其他操作都可以接受一个或多个key进行操作</li>
+<li>bitop处理不同长度字符串时，较短的那个字符串所缺少的部分会被看做0，空的key也会被看作是包含0的字符串序列</li>
+</ul>
+<h3 id="bitpos"><a href="#bitpos" class="headerlink" title="bitpos"></a>bitpos</h3><blockquote>
+<p>bitpos key targetBit [start] [end]</p>
+</blockquote>
+<ul>
+<li>返回指定值是0或1在指定区间上首次出现的下标，(start到end，单位为字节，如果不指定就是获取全部)</li>
+</ul>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><ul>
+<li>独立用户统计,用时间作为缓存的key，然后用户id为offset，如果当日活跃过就设置为1。之后通过bitOp进行二进制计算算出在某段时间内用户的活跃情况</li>
+<li>存储视频的属性信息</li>
+<li>用户在线状态统计, 用户id为偏移量offset，如果在线就设置为1，不在线就设置为0</li>
+<li>用户签到，key主要由uid组成，设定一个初始时间，往后没加一天即对应value中的offset的位置。</li>
+</ul>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
+<li>它的实质上还是字符串，最大只能存储512M字节的内容</li>
+<li>如果setbit时偏移量比较大，设置时会产生非常大的耗时</li>
+<li>位图不是绝对的好，有利也有弊</li>
+</ol>
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><h3 id="setbit-1"><a href="#setbit-1" class="headerlink" title="setbit"></a>setbit</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set hello big</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get hello</span><br><span class="line">&quot;big&quot;</span><br><span class="line">127.0.0.1:6379&gt; setbit hello 7 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get hello</span><br><span class="line">&quot;cig&quot;</span><br></pre></td></tr></table></figure>
+<p>我们可以看到原来存储的big变成了cig</p>
+<h3 id="getbit-1"><a href="#getbit-1" class="headerlink" title="getbit"></a>getbit</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set hello big</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get hello</span><br><span class="line">&quot;big&quot;</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 0</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 3</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 4</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 5</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 6</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 7</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 8</span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure>
+<h3 id="bitcount-1"><a href="#bitcount-1" class="headerlink" title="bitcount"></a>bitcount</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setbit k1 1 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;@&quot;</span><br><span class="line">127.0.0.1:6379&gt; setbit k1 7 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;A&quot;</span><br><span class="line">127.0.0.1:6379&gt; setbit k1 9 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;A@&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1</span><br><span class="line">(integer) 3</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1 0 0 // 第一个字节</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1 0 1</span><br><span class="line">(integer) 3</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1 1 1 // 第二个字节</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1 2 2</span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure>
+<h3 id="bitpos-1"><a href="#bitpos-1" class="headerlink" title="bitpos"></a>bitpos</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; bitpos k1 1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; bitpos k1 1 0 0</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; bitpos k1 1 1 1</span><br><span class="line">(integer) 9</span><br></pre></td></tr></table></figure>
+<h3 id="bitop-1"><a href="#bitop-1" class="headerlink" title="bitop"></a>bitop</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">27.0.0.1:6379&gt; setbit k1 1 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setbit k2 7 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; bitop and k3 k1k 2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) &quot;k2&quot;</span><br><span class="line">2) &quot;k1&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitop and k3 k1 k2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k3</span><br><span class="line">&quot;\x00&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitop or k4 k1 k2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k4</span><br><span class="line">&quot;A&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitop not k5 k2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k5</span><br><span class="line">&quot;\xfe&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitop xor k6 k1 k2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k6</span><br><span class="line">&quot;A&quot;</span><br></pre></td></tr></table></figure>
+<hr>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis入门篇之环境搭建</title>
+    <url>/article/redis-base-install-env/</url>
+    <content><![CDATA[<p>搭建环境</p>
+<ul>
+<li>Ubuntu 20.04</li>
+<li>redis 6.0.10</li>
+</ul>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ul>
+<li>第一种安装方式 apt<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install redis-server</span><br></pre></td></tr></table></figure></li>
+<li>第二种安装方式 编译安装<br><a href="https://redis.io/download">官方下载地址</a><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://download.redis.io/releases/redis-6.0.10.tar.gz</span><br><span class="line">tar -zxf redis-6.0.10.tar.gz </span><br><span class="line">cd redis-6.0.10</span><br><span class="line">sudo make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>执行完 make install 命令后会在当前目录的src目录下生成redis的相关命令，自动会将命令拷贝到 /user/local/bin 目录下</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="管理"><a href="#管理" class="headerlink" title="管理"></a>管理</h2><h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><ul>
+<li>默认<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-server</span></span><br></pre></td></tr></table></figure></li>
+<li>加配置文件方式<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-server redis.conf</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="停止"><a href="#停止" class="headerlink" title="停止"></a>停止</h3><ul>
+<li><p>通过客户端方式停止</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli shutdown</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过杀死进程的方式停止</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ps -ef | grep -v <span class="string">&quot;grep&quot;</span> | grep redis-server</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">kill</span> PID</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h2><ul>
+<li><p>默认</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>指定IP与端口号方式</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h IP -p PORT</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h 192.168.56.101 -p 6380</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="客户端返回值"><a href="#客户端返回值" class="headerlink" title="客户端返回值"></a>客户端返回值</h2><ul>
+<li><p>状态回复</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; ping</p>
+<p>pong</p>
+</blockquote>
+</li>
+<li><p>错误回复</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; hget hello field</p>
+<p>(error) WRONGTYPE Operation aginst</p>
+</blockquote>
+</li>
+<li><p>整数回复</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; incr hello</p>
+<p>(integer) 1</p>
+</blockquote>
+</li>
+<li><p>字符串回复</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; get hello</p>
+<p>“world”</p>
+</blockquote>
+</li>
+<li><p>多行字符串回复</p>
+<blockquote>
+<p>127.0.0.1:6379&gt; mget hello field</p>
+<p>1) “world”<br>2) “bar”</p>
+</blockquote>
+</li>
+</ul>
+<hr>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>ubuntu</tag>
+        <tag>redis</tag>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -1594,87 +1838,6 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
       </tags>
   </entry>
   <entry>
-    <title>redis入门篇之环境搭建</title>
-    <url>/article/redis-base-install-env/</url>
-    <content><![CDATA[<p>搭建环境</p>
-<ul>
-<li>Ubuntu 20.04</li>
-<li>redis 6.0.10</li>
-</ul>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ul>
-<li>第一种安装方式 apt<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install redis-server</span><br></pre></td></tr></table></figure></li>
-<li>第二种安装方式 编译安装<br><a href="https://redis.io/download">官方下载地址</a><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://download.redis.io/releases/redis-6.0.10.tar.gz</span><br><span class="line">tar -zxf redis-6.0.10.tar.gz </span><br><span class="line">cd redis-6.0.10</span><br><span class="line">sudo make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>执行完 make install 命令后会在当前目录的src目录下生成redis的相关命令，自动会将命令拷贝到 /user/local/bin 目录下</p>
-</blockquote>
-</li>
-</ul>
-<h2 id="管理"><a href="#管理" class="headerlink" title="管理"></a>管理</h2><h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><ul>
-<li>默认<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-server</span></span><br></pre></td></tr></table></figure></li>
-<li>加配置文件方式<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-server redis.conf</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="停止"><a href="#停止" class="headerlink" title="停止"></a>停止</h3><ul>
-<li><p>通过客户端方式停止</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli shutdown</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>通过杀死进程的方式停止</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ps -ef | grep -v <span class="string">&quot;grep&quot;</span> | grep redis-server</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">kill</span> PID</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h2><ul>
-<li><p>默认</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>指定IP与端口号方式</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h IP -p PORT</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> redis-cli -h 192.168.56.101 -p 6380</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="客户端返回值"><a href="#客户端返回值" class="headerlink" title="客户端返回值"></a>客户端返回值</h2><ul>
-<li><p>状态回复</p>
-<blockquote>
-<p>127.0.0.1:6379&gt; ping</p>
-<p>pong</p>
-</blockquote>
-</li>
-<li><p>错误回复</p>
-<blockquote>
-<p>127.0.0.1:6379&gt; hget hello field</p>
-<p>(error) WRONGTYPE Operation aginst</p>
-</blockquote>
-</li>
-<li><p>整数回复</p>
-<blockquote>
-<p>127.0.0.1:6379&gt; incr hello</p>
-<p>(integer) 1</p>
-</blockquote>
-</li>
-<li><p>字符串回复</p>
-<blockquote>
-<p>127.0.0.1:6379&gt; get hello</p>
-<p>“world”</p>
-</blockquote>
-</li>
-<li><p>多行字符串回复</p>
-<blockquote>
-<p>127.0.0.1:6379&gt; mget hello field</p>
-<p>1) “world”<br>2) “bar”</p>
-</blockquote>
-</li>
-</ul>
-<hr>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>ubuntu</tag>
-        <tag>redis</tag>
-        <tag>linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>redis数据结构篇之集合篇</title>
     <url>/article/redis-data-struct-set/</url>
     <content><![CDATA[<h2 id="键值结构"><a href="#键值结构" class="headerlink" title="键值结构"></a>键值结构</h2><ul>
@@ -1757,96 +1920,6 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
 <h3 id="smembers-1"><a href="#smembers-1" class="headerlink" title="smembers"></a>smembers</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; smembers s1</span><br><span class="line">1) &quot;b&quot;</span><br><span class="line">2) &quot;d&quot;</span><br><span class="line">3) &quot;a&quot;</span><br><span class="line">4) &quot;f&quot;</span><br><span class="line">5) &quot;g&quot;</span><br><span class="line">6) &quot;e&quot;</span><br><span class="line">7) &quot;c&quot;</span><br></pre></td></tr></table></figure>
 <h3 id="spop-1"><a href="#spop-1" class="headerlink" title="spop"></a>spop</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; smembers s1</span><br><span class="line">1) &quot;b&quot;</span><br><span class="line">2) &quot;d&quot;</span><br><span class="line">3) &quot;a&quot;</span><br><span class="line">4) &quot;g&quot;</span><br><span class="line">5) &quot;e&quot;</span><br><span class="line">6) &quot;c&quot;</span><br><span class="line">127.0.0.1:6379&gt; spop s1 2</span><br><span class="line">1) &quot;d&quot;</span><br><span class="line">2) &quot;c&quot;</span><br><span class="line">127.0.0.1:6379&gt; smembers s1</span><br><span class="line">1) &quot;b&quot;</span><br><span class="line">2) &quot;a&quot;</span><br><span class="line">3) &quot;g&quot;</span><br><span class="line">4) &quot;e&quot;</span><br></pre></td></tr></table></figure>
 <h3 id="sadd-sdiff-sunion-sinter"><a href="#sadd-sdiff-sunion-sinter" class="headerlink" title="sadd-sdiff-sunion-sinter"></a>sadd-sdiff-sunion-sinter</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; sadd s2 it music his sports</span><br><span class="line">(integer) 4</span><br><span class="line">127.0.0.1:6379&gt; sadd s3 it news ent sports</span><br><span class="line">(integer) 4</span><br><span class="line">127.0.0.1:6379&gt; sdiff s2 s3</span><br><span class="line">1) &quot;his&quot;</span><br><span class="line">2) &quot;music&quot;</span><br><span class="line">127.0.0.1:6379&gt; sinter s2 s3</span><br><span class="line">1) &quot;it&quot;</span><br><span class="line">2) &quot;sports&quot;</span><br><span class="line">127.0.0.1:6379&gt; sunion s2 s3</span><br><span class="line">1) &quot;ent&quot;</span><br><span class="line">2) &quot;his&quot;</span><br><span class="line">3) &quot;music&quot;</span><br><span class="line">4) &quot;news&quot;</span><br><span class="line">5) &quot;it&quot;</span><br><span class="line">6) &quot;sports&quot;</span><br><span class="line">127.0.0.1:6379&gt; sdiffstore s4 s2 s3</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; smembers s4</span><br><span class="line">1) &quot;his&quot;</span><br><span class="line">2) &quot;music&quot;</span><br></pre></td></tr></table></figure>
-<hr>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>redis基础篇之通用命令篇</title>
-    <url>/article/redis-base-common-command/</url>
-    <content><![CDATA[<p>记录一下redis的通用操作命令</p>
-<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><h3 id="keys"><a href="#keys" class="headerlink" title="keys"></a>keys</h3><blockquote>
-<p>keys pattern</p>
-<ul>
-<li>遍历key,有3个通配符<ul>
-<li>? 匹配单个字符</li>
-<li>* 匹配任意多个字符</li>
-<li>[] 匹配括号内的某一个字符</li>
-</ul>
-</li>
-<li>keys命令一般不在生产环境使用，在主从节点的从节点上进行操作</li>
-<li>时间复杂度:O(n)</li>
-</ul>
-</blockquote>
-<h3 id="dbsize"><a href="#dbsize" class="headerlink" title="dbsize"></a>dbsize</h3><blockquote>
-<p>dbsize</p>
-<ul>
-<li>计算当前数据库的key的个数</li>
-<li>时间复杂度:O(1)</li>
-</ul>
-</blockquote>
-<h3 id="select"><a href="#select" class="headerlink" title="select"></a>select</h3><blockquote>
-<p>select dbNumber</p>
-<ul>
-<li>切换到其他（number）数据库，默认当前处于0号数据库</li>
-</ul>
-</blockquote>
-<h3 id="exists"><a href="#exists" class="headerlink" title="exists"></a>exists</h3><blockquote>
-<p>exists key</p>
-<ul>
-<li>检查key是否存在</li>
-<li>时间复杂度:O(1)</li>
-</ul>
-</blockquote>
-<h3 id="del"><a href="#del" class="headerlink" title="del"></a>del</h3><blockquote>
-<p>del key</p>
-<ul>
-<li>删除指定的key-value</li>
-</ul>
-</blockquote>
-<h3 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h3><blockquote>
-<p>expire key seconds</p>
-<ul>
-<li>设置key在second秒后过期</li>
-<li>时间复杂度:O(1)</li>
-</ul>
-</blockquote>
-<h3 id="ttl"><a href="#ttl" class="headerlink" title="ttl"></a>ttl</h3><blockquote>
-<p>ttl key</p>
-<ul>
-<li>查看key的过期时间，就是剩余多少秒过期<ul>
-<li>-1 ，表示key存在，并且没有过期时间</li>
-<li>-2 ，表示key已经不存在</li>
-<li>5， 表示还有5秒就过期,这里的5指代的是大于0的整数</li>
-</ul>
-</li>
-</ul>
-</blockquote>
-<h3 id="type"><a href="#type" class="headerlink" title="type"></a>type</h3><blockquote>
-<p>type key</p>
-<ul>
-<li>返回key的类型</li>
-<li>时间复杂度:O(1)</li>
-</ul>
-</blockquote>
-<h3 id="persist"><a href="#persist" class="headerlink" title="persist"></a>persist</h3><blockquote>
-<p>persist key</p>
-<ul>
-<li>设置key永远不过期</li>
-</ul>
-</blockquote>
-<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><h3 id="keys-1"><a href="#keys-1" class="headerlink" title="keys"></a>keys</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line"> 1) &quot;k7&quot;</span><br><span class="line"> 2) &quot;k3&quot;</span><br><span class="line"> 3) &quot;k5&quot;</span><br><span class="line"> 4) &quot;kn1&quot;</span><br><span class="line"> 5) &quot;s2&quot;</span><br><span class="line"> 6) &quot;k4&quot;</span><br><span class="line"> 7) &quot;k2&quot;</span><br><span class="line"> 8) &quot;k1&quot;</span><br><span class="line"> 9) &quot;s1&quot;</span><br><span class="line">10) &quot;s3&quot;</span><br><span class="line">11) &quot;k6&quot;</span><br><span class="line">12) &quot;kn2&quot;</span><br><span class="line">127.0.0.1:6379&gt; keys k?</span><br><span class="line">1) &quot;k7&quot;</span><br><span class="line">2) &quot;k3&quot;</span><br><span class="line">3) &quot;k5&quot;</span><br><span class="line">4) &quot;k4&quot;</span><br><span class="line">5) &quot;k2&quot;</span><br><span class="line">6) &quot;k1&quot;</span><br><span class="line">7) &quot;k6&quot;</span><br><span class="line">127.0.0.1:6379&gt; keys k[1]</span><br><span class="line">1) &quot;k1&quot;</span><br><span class="line">127.0.0.1:6379&gt; keys k[1,23,4,6]</span><br><span class="line">1) &quot;k3&quot;</span><br><span class="line">2) &quot;k4&quot;</span><br><span class="line">3) &quot;k2&quot;</span><br><span class="line">4) &quot;k1&quot;</span><br><span class="line">5) &quot;k6&quot;</span><br></pre></td></tr></table></figure>
-<h3 id="dbsize-1"><a href="#dbsize-1" class="headerlink" title="dbsize"></a>dbsize</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; dbsize</span><br><span class="line">(integer) 12</span><br></pre></td></tr></table></figure>
-<h3 id="exists-1"><a href="#exists-1" class="headerlink" title="exists"></a>exists</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; exists k9</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; exists k7</span><br><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
-<h3 id="ttl-1"><a href="#ttl-1" class="headerlink" title="ttl"></a>ttl</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ttl k1</span><br><span class="line">(integer) -1</span><br><span class="line">127.0.0.1:6379&gt; expire k1 12</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; expire k1 120</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl k1</span><br><span class="line">(integer) 118</span><br><span class="line">127.0.0.1:6379&gt; persist k1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl k1</span><br><span class="line">(integer) -1</span><br></pre></td></tr></table></figure>
-<h3 id="del-1"><a href="#del-1" class="headerlink" title="del"></a>del</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; del kn2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get kn2</span><br><span class="line">(nil)</span><br></pre></td></tr></table></figure>
-<h3 id="select-1"><a href="#select-1" class="headerlink" title="select"></a>select</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; select 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[1]&gt; dbsize</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379[1]&gt; select 0</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; dbsize</span><br><span class="line">(integer) 11</span><br></pre></td></tr></table></figure>
-<h3 id="expire-1"><a href="#expire-1" class="headerlink" title="expire"></a>expire</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set s2 helloworld</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl s2</span><br><span class="line">(integer) -1</span><br><span class="line">127.0.0.1:6379&gt; expire s2 120</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl s2</span><br><span class="line">(integer) 118</span><br><span class="line">127.0.0.1:6379&gt; ttl s2</span><br><span class="line">(integer) -2</span><br></pre></td></tr></table></figure>
 <hr>
 ]]></content>
       <categories>
@@ -2007,79 +2080,6 @@ $$  O(1) < O(logn) < O(\sqrt n) < O(n) < O(nlogn) < O(n^2) < O(n^3) < O(2^n) < o
 <h3 id="setrange-getrange"><a href="#setrange-getrange" class="headerlink" title="setrange-getrange"></a>setrange-getrange</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#setrange getrange 字符串索引设置</span><br><span class="line">127.0.0.1:6379&gt; get s1</span><br><span class="line">&quot;abcdefghijklmn&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange s1 0 -1</span><br><span class="line">&quot;abcdefghijklmn&quot;</span><br><span class="line">127.0.0.1:6379&gt; getrange s1 0 2</span><br><span class="line">&quot;abc&quot;</span><br><span class="line">127.0.0.1:6379&gt; setrange s1 0 q</span><br><span class="line">(integer) 14</span><br><span class="line">127.0.0.1:6379&gt; get s1</span><br><span class="line">&quot;qbcdefghijklmn&quot;</span><br></pre></td></tr></table></figure>
 <h3 id="mget-mset"><a href="#mget-mset" class="headerlink" title="mget-mset"></a>mget-mset</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 设置与获取多个key的值</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt; get k2</span><br><span class="line">&quot;v3&quot;</span><br><span class="line">127.0.0.1:6379&gt; get k3</span><br><span class="line">(nil)</span><br><span class="line">127.0.0.1:6379&gt; set k3 v2</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set k4 v4</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget k1 k2 k3 k4</span><br><span class="line">1) &quot;v1&quot;</span><br><span class="line">2) &quot;v3&quot;</span><br><span class="line">3) &quot;v2&quot;</span><br><span class="line">4) &quot;v4&quot;</span><br><span class="line">127.0.0.1:6379&gt; mset k5 v5 k6 v6 k7 v7</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; mget k5 k6 k7</span><br><span class="line">1) &quot;v5&quot;</span><br><span class="line">2) &quot;v6&quot;</span><br><span class="line">3) &quot;v7&quot;</span><br></pre></td></tr></table></figure>
 <h3 id="append-1"><a href="#append-1" class="headerlink" title="append"></a>append</h3><h2 id=""><a href="#" class="headerlink" title=""></a><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 追加 append</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1&quot;</span><br><span class="line">127.0.0.1:6379&gt; append k1 va</span><br><span class="line">(integer) 4</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;v1va&quot;</span><br></pre></td></tr></table></figure></h2>]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>redis位图</title>
-    <url>/article/redis-bitmap/</url>
-    <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ol>
-<li>BitMap也称位图，位图不是真正的数据类型，是定义在字符串类型中，一个字符串类型的值最多能存储512M字节的内容</li>
-<li>位图其实就是byte[]数组，用二进制表示，只有0和1两个数字，是通过1个bit位来表示某个元素对应的值或者状态,也就是说一个bit能存储的最多信息是2</li>
-<li>位数组是自动扩展的，如果设置了某个偏移位置超出了现有范围，就会自动将位数组进行零扩充</li>
-<li>有符号数是指获取的位数组中第一个位是符号位，剩下的才是值。如果第一位是1，那就是负数。无符号数表示非负数，没有符号位，获取的位数组全部都是值。有符号数最多可以获取64位，无符号数只能获取63位，因为redis协议中的integer是有符号数，最大位64位，不能传递64位无符号值。</li>
-</ol>
-<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><h3 id="setbit"><a href="#setbit" class="headerlink" title="setbit"></a>setbit</h3><blockquote>
-<p>setbit key offset value</p>
-</blockquote>
-<ul>
-<li>给位图指定索引设置值</li>
-</ul>
-<h3 id="getbit"><a href="#getbit" class="headerlink" title="getbit"></a>getbit</h3><blockquote>
-<p>getbit key offset</p>
-</blockquote>
-<ul>
-<li>获取位图指定索引的值</li>
-</ul>
-<h3 id="bitcount"><a href="#bitcount" class="headerlink" title="bitcount"></a>bitcount</h3><blockquote>
-<p>bitcount key [start end]</p>
-</blockquote>
-<ul>
-<li>获取位图指定范围(start到end，单位为字节，如果不指定就是获取全部)位值为1的个数</li>
-</ul>
-<h3 id="bitop"><a href="#bitop" class="headerlink" title="bitop"></a>bitop</h3><blockquote>
-<p>bitop op destkey key [key…..]</p>
-</blockquote>
-<ul>
-<li>对一个或多个保存二进制位的字符串key进行位操作，并将结果保存在destkey上，op有以下四种值<ul>
-<li>and，逻辑与</li>
-<li>or，逻辑或</li>
-<li>not，逻辑非</li>
-<li>xor，逻辑异或</li>
-</ul>
-</li>
-<li>除了not操作符外，其他操作都可以接受一个或多个key进行操作</li>
-<li>bitop处理不同长度字符串时，较短的那个字符串所缺少的部分会被看做0，空的key也会被看作是包含0的字符串序列</li>
-</ul>
-<h3 id="bitpos"><a href="#bitpos" class="headerlink" title="bitpos"></a>bitpos</h3><blockquote>
-<p>bitpos key targetBit [start] [end]</p>
-</blockquote>
-<ul>
-<li>返回指定值是0或1在指定区间上首次出现的下标，(start到end，单位为字节，如果不指定就是获取全部)</li>
-</ul>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><ul>
-<li>独立用户统计,用时间作为缓存的key，然后用户id为offset，如果当日活跃过就设置为1。之后通过bitOp进行二进制计算算出在某段时间内用户的活跃情况</li>
-<li>存储视频的属性信息</li>
-<li>用户在线状态统计, 用户id为偏移量offset，如果在线就设置为1，不在线就设置为0</li>
-<li>用户签到，key主要由uid组成，设定一个初始时间，往后没加一天即对应value中的offset的位置。</li>
-</ul>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><ol>
-<li>它的实质上还是字符串，最大只能存储512M字节的内容</li>
-<li>如果setbit时偏移量比较大，设置时会产生非常大的耗时</li>
-<li>位图不是绝对的好，有利也有弊</li>
-</ol>
-<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><h3 id="setbit-1"><a href="#setbit-1" class="headerlink" title="setbit"></a>setbit</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set hello big</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get hello</span><br><span class="line">&quot;big&quot;</span><br><span class="line">127.0.0.1:6379&gt; setbit hello 7 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get hello</span><br><span class="line">&quot;cig&quot;</span><br></pre></td></tr></table></figure>
-<p>我们可以看到原来存储的big变成了cig</p>
-<h3 id="getbit-1"><a href="#getbit-1" class="headerlink" title="getbit"></a>getbit</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set hello big</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get hello</span><br><span class="line">&quot;big&quot;</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 0</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 3</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 4</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 5</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 6</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 7</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; getbit hello 8</span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure>
-<h3 id="bitcount-1"><a href="#bitcount-1" class="headerlink" title="bitcount"></a>bitcount</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; setbit k1 1 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;@&quot;</span><br><span class="line">127.0.0.1:6379&gt; setbit k1 7 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;A&quot;</span><br><span class="line">127.0.0.1:6379&gt; setbit k1 9 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get k1</span><br><span class="line">&quot;A@&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1</span><br><span class="line">(integer) 3</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1 0 0 // 第一个字节</span><br><span class="line">(integer) 2</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1 0 1</span><br><span class="line">(integer) 3</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1 1 1 // 第二个字节</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; bitcount k1 2 2</span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure>
-<h3 id="bitpos-1"><a href="#bitpos-1" class="headerlink" title="bitpos"></a>bitpos</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; bitpos k1 1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; bitpos k1 1 0 0</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; bitpos k1 1 1 1</span><br><span class="line">(integer) 9</span><br></pre></td></tr></table></figure>
-<h3 id="bitop-1"><a href="#bitop-1" class="headerlink" title="bitop"></a>bitop</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">27.0.0.1:6379&gt; setbit k1 1 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setbit k2 7 1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; bitop and k3 k1k 2</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) &quot;k2&quot;</span><br><span class="line">2) &quot;k1&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitop and k3 k1 k2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k3</span><br><span class="line">&quot;\x00&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitop or k4 k1 k2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k4</span><br><span class="line">&quot;A&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitop not k5 k2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k5</span><br><span class="line">&quot;\xfe&quot;</span><br><span class="line">127.0.0.1:6379&gt; bitop xor k6 k1 k2</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get k6</span><br><span class="line">&quot;A&quot;</span><br></pre></td></tr></table></figure>
-<hr>
-]]></content>
       <categories>
         <category>数据库</category>
       </categories>
@@ -2991,6 +2991,95 @@ aof文件是在Redis启动的过程中创建的，在运行过程中Redis不会�
       </tags>
   </entry>
   <entry>
+    <title>redis开发规范</title>
+    <url>/article/redis-use-standard/</url>
+    <content><![CDATA[<h2 id="键值设计"><a href="#键值设计" class="headerlink" title="键值设计"></a>键值设计</h2><h3 id="key"><a href="#key" class="headerlink" title="key"></a>key</h3><p>名称的设计：</p>
+<ul>
+<li>可读性和可管理性：以业务名(或数据库名)为前缀(防止key冲突)，用冒号分割，比如业务名:表名:id,如:ug:video:1</li>
+<li>简洁性：保证语义的前提下，控制key的长度，当key较多时，内存占用也应当重视</li>
+<li>不要包含特殊字符</li>
+</ul>
+<h3 id="value"><a href="#value" class="headerlink" title="value"></a>value</h3><ul>
+<li>拒绝bigkey</li>
+<li>选择合适的数据结构</li>
+<li>过期设计</li>
+</ul>
+<h4 id="bigke"><a href="#bigke" class="headerlink" title="bigke"></a>bigke</h4><blockquote>
+<p> 标准</p>
+</blockquote>
+<ul>
+<li>string类型控制在10KB以内</li>
+<li>hash、list、set、zset元素个数不要超过5000</li>
+</ul>
+<blockquote>
+<p> 危害</p>
+</blockquote>
+<ul>
+<li>网络阻塞</li>
+<li>Redis阻塞</li>
+<li>集群节点数据不均衡</li>
+<li>频繁序列化：应用服务器CPU消耗</li>
+</ul>
+<blockquote>
+<p> 发现</p>
+</blockquote>
+<ul>
+<li>应用异常</li>
+<li>redis-cli —bigkeys</li>
+<li>scan+debug object</li>
+<li>主动报警：网络流量监控、客户端监控</li>
+<li>内核热点key问题优化</li>
+</ul>
+<blockquote>
+<p>删除</p>
+</blockquote>
+<ul>
+<li>阻塞：注意隐性删除(过期，rename等)</li>
+<li>lazy delete命令</li>
+</ul>
+<blockquote>
+<p> 预防</p>
+</blockquote>
+<ul>
+<li>优化数据结果：例如二级拆分</li>
+<li>物理隔离或者万兆网卡</li>
+<li>命令优化</li>
+<li>报警和定期优化</li>
+</ul>
+<h2 id="命令优化"><a href="#命令优化" class="headerlink" title="命令优化"></a>命令优化</h2><ol>
+<li>O(N)以上的命令需要关注N的数量，例如hgetall，lrange，smembers，zrange，sinter等不能说不能使用，但是需要明确N的值，有遍历的需求可以使用hscan，sscan，zscan代替</li>
+<li>禁用命令，禁止使用keys，flushall，flushdb等，通过redis的rename机制禁掉命令，或者使用scan的方式渐进式处理</li>
+<li>合理使用select<ol>
+<li>redis的多数据较弱，使用数字进行区分</li>
+<li>很多客户端支持较差</li>
+<li>同时多业务用多数据库实际还是单线程处理，会有干扰</li>
+</ol>
+</li>
+<li>Redis事务功能较弱，不建议过多使用<ol>
+<li>redis事务功能不支持回滚</li>
+<li>集群版本要求一次事务操作的key必须在一个solt上(可以使用hashtag功能解决)</li>
+</ol>
+</li>
+<li>Redis集群版本在使用lua上有特殊要求<ol>
+<li>所有key，必须在1个solt上否则直接返回error</li>
+</ol>
+</li>
+<li>必要情况下使用monitor命令时，要注意不要长时间使用</li>
+</ol>
+<h2 id="客户端优化"><a href="#客户端优化" class="headerlink" title="客户端优化"></a>客户端优化</h2><ul>
+<li>避免多个应用使用一个redis实例，不相干的业务拆分，公共数据做服务化</li>
+<li>使用连接池</li>
+</ul>
+<hr>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>redis慢查询</title>
     <url>/article/redis-slowquery/</url>
     <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>&emsp;&emsp;我们现在使用的存储数据的系统比如说MySQL都有提供了慢查询日志的功能来帮助开发和运维人员定位系统访问变慢的功能。慢查询和字面意思一样，就是执行非常慢的操作喽，在我们的系统中就是一条命令本来假定的期望时间是2秒之内执行完成表示都是ok的，现在当前的命令的执行时间超过了我们设置的2秒的阈值，系统会将这条命令的相关信息(比如说，发生时间，耗时，具体执行的操作，参数等信息)记录下来，当然了redis也有类似的功能。</p>
@@ -3123,95 +3212,6 @@ aof文件是在Redis启动的过程中创建的，在运行过程中Redis不会�
       </categories>
       <tags>
         <tag>php</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>redis开发规范</title>
-    <url>/article/redis-use-standard/</url>
-    <content><![CDATA[<h2 id="键值设计"><a href="#键值设计" class="headerlink" title="键值设计"></a>键值设计</h2><h3 id="key"><a href="#key" class="headerlink" title="key"></a>key</h3><p>名称的设计：</p>
-<ul>
-<li>可读性和可管理性：以业务名(或数据库名)为前缀(防止key冲突)，用冒号分割，比如业务名:表名:id,如:ug:video:1</li>
-<li>简洁性：保证语义的前提下，控制key的长度，当key较多时，内存占用也应当重视</li>
-<li>不要包含特殊字符</li>
-</ul>
-<h3 id="value"><a href="#value" class="headerlink" title="value"></a>value</h3><ul>
-<li>拒绝bigkey</li>
-<li>选择合适的数据结构</li>
-<li>过期设计</li>
-</ul>
-<h4 id="bigke"><a href="#bigke" class="headerlink" title="bigke"></a>bigke</h4><blockquote>
-<p> 标准</p>
-</blockquote>
-<ul>
-<li>string类型控制在10KB以内</li>
-<li>hash、list、set、zset元素个数不要超过5000</li>
-</ul>
-<blockquote>
-<p> 危害</p>
-</blockquote>
-<ul>
-<li>网络阻塞</li>
-<li>Redis阻塞</li>
-<li>集群节点数据不均衡</li>
-<li>频繁序列化：应用服务器CPU消耗</li>
-</ul>
-<blockquote>
-<p> 发现</p>
-</blockquote>
-<ul>
-<li>应用异常</li>
-<li>redis-cli —bigkeys</li>
-<li>scan+debug object</li>
-<li>主动报警：网络流量监控、客户端监控</li>
-<li>内核热点key问题优化</li>
-</ul>
-<blockquote>
-<p>删除</p>
-</blockquote>
-<ul>
-<li>阻塞：注意隐性删除(过期，rename等)</li>
-<li>lazy delete命令</li>
-</ul>
-<blockquote>
-<p> 预防</p>
-</blockquote>
-<ul>
-<li>优化数据结果：例如二级拆分</li>
-<li>物理隔离或者万兆网卡</li>
-<li>命令优化</li>
-<li>报警和定期优化</li>
-</ul>
-<h2 id="命令优化"><a href="#命令优化" class="headerlink" title="命令优化"></a>命令优化</h2><ol>
-<li>O(N)以上的命令需要关注N的数量，例如hgetall，lrange，smembers，zrange，sinter等不能说不能使用，但是需要明确N的值，有遍历的需求可以使用hscan，sscan，zscan代替</li>
-<li>禁用命令，禁止使用keys，flushall，flushdb等，通过redis的rename机制禁掉命令，或者使用scan的方式渐进式处理</li>
-<li>合理使用select<ol>
-<li>redis的多数据较弱，使用数字进行区分</li>
-<li>很多客户端支持较差</li>
-<li>同时多业务用多数据库实际还是单线程处理，会有干扰</li>
-</ol>
-</li>
-<li>Redis事务功能较弱，不建议过多使用<ol>
-<li>redis事务功能不支持回滚</li>
-<li>集群版本要求一次事务操作的key必须在一个solt上(可以使用hashtag功能解决)</li>
-</ol>
-</li>
-<li>Redis集群版本在使用lua上有特殊要求<ol>
-<li>所有key，必须在1个solt上否则直接返回error</li>
-</ol>
-</li>
-<li>必要情况下使用monitor命令时，要注意不要长时间使用</li>
-</ol>
-<h2 id="客户端优化"><a href="#客户端优化" class="headerlink" title="客户端优化"></a>客户端优化</h2><ul>
-<li>避免多个应用使用一个redis实例，不相干的业务拆分，公共数据做服务化</li>
-<li>使用连接池</li>
-</ul>
-<hr>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>redis</tag>
       </tags>
   </entry>
   <entry>
@@ -5560,6 +5560,60 @@ A:  主机2需要保证这段时间的响应数据正确的发送给主机1，�
       </tags>
   </entry>
   <entry>
+    <title>mysql知识汇总篇</title>
+    <url>/article/mysql-knowledge/</url>
+    <content><![CDATA[<h2 id="修改root密码"><a href="#修改root密码" class="headerlink" title="修改root密码"></a>修改root密码</h2><p>通过<strong>apt-get install</strong> 方式安装完MySQL后，在 <strong>/etc/mysql/</strong> 目录下有一个<font color="red">debian.cnf</font>配置文件,文件内容是一个配置好权限的登录用户和密码;<br>不知道root用户密码，需要用这个配置好的用户名和密码登录到数据库中去修改root的用户名和密码</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo cat /etc/mysql/debian.cnf</span><br><span class="line">mysql -u debian-sys-maint -p</span><br></pre></td></tr></table></figure>
+<p>好了,已经可以成功进入数据库了,接下来查看一下root用户的配置项<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select user,host, authentication_string from mysql.user where user=&#x27;root&#x27;;</span><br><span class="line">+------+-----------+-----------------------+</span><br><span class="line">| user | host      | authentication_string |</span><br><span class="line">+------+-----------+-----------------------+</span><br><span class="line">| root | localhost |                       |</span><br><span class="line">+------+-----------+-----------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure><br>发现密码的那一项是空的,第一反应是不是在终端输入 <code>msyql -u root -p</code> 然后回车,心里美滋滋的以为可以用root用户登录了,但是现实很残酷啊,<br>终端会给你提示验证错误,是不是一脸蒙蔽了,手动狗头,mysql中看一个用户的配置除了上面的查看项还需要知道有一个plugin字段,这个里面放置了当前用户的加密插件,mysql内置了很多的插件<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show plugins;</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">| Name                            | Status   | Type               | Library        | License |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">| binlog                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| mysql_native_password           | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| sha256_password                 | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| caching_sha2_password           | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| sha2_cache_cleaner              | ACTIVE   | AUDIT              | NULL           | GPL     |</span><br><span class="line">| CSV                             | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| MEMORY                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| InnoDB                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| INNODB_TRX                      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP                      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_RESET                | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMPMEM                   | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMPMEM_RESET             | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_PER_INDEX            | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_PER_INDEX_RESET      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_PAGE              | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_PAGE_LRU          | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_POOL_STATS        | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TEMP_TABLE_INFO          | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_METRICS                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_DEFAULT_STOPWORD      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_DELETED               | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_BEING_DELETED         | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_CONFIG                | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_INDEX_CACHE           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_INDEX_TABLE           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLES                   | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLESTATS               | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_INDEXES                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLESPACES              | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_COLUMNS                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_VIRTUAL                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CACHED_INDEXES           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_SESSION_TEMP_TABLESPACES | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| MyISAM                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| MRG_MYISAM                      | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| PERFORMANCE_SCHEMA              | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| TempTable                       | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| ARCHIVE                         | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| BLACKHOLE                       | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| FEDERATED                       | DISABLED | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| ngram                           | ACTIVE   | FTPARSER           | NULL           | GPL     |</span><br><span class="line">| mysqlx_cache_cleaner            | ACTIVE   | AUDIT              | NULL           | GPL     |</span><br><span class="line">| mysqlx                          | ACTIVE   | DAEMON             | NULL           | GPL     |</span><br><span class="line">| auth_socket                     | ACTIVE   | AUTHENTICATION     | auth_socket.so | GPL     |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">45 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure><br>我们再一次查看root用户的插件</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select user,host,authentication_string,plugin from mysql.user where user=&#x27;root&#x27;;</span><br><span class="line">+------------------+-----------+------------------------------------------------------------------------+-----------------------+</span><br><span class="line">| user             | host      | authentication_string                                                  | plugin                |</span><br><span class="line">+------------------+-----------+------------------------------------------------------------------------+-----------------------+</span><br><span class="line">| root             | localhost |                                                                        | auth_socket           |</span><br><span class="line">+------------------+-----------+------------------------------------------------------------------------+-----------------------+</span><br></pre></td></tr></table></figure>
+<p>通过以上的SQL结果我们可以看出 root用户的密码验证插件使用的auth_socket方式,简单地来介绍一个这个插件：</p>
+<ul>
+<li>第一点：这种验证方式不需要输入密码,即使你好奇输入了密码它也不会进行验证</li>
+<li>第二点：这种只能通过uninx的socket方式登录,什么意思呢,就是说只能本地连接,不支持远程连接,而且这种方式在用户登录数据库之前已经通过了操作 系统层级的安全验证</li>
+<li>第三点：当前要登录数据库的用户名和操作系统的用户名一致.举个例子来说,在这个场景下你要登录数据库的root用户你就必须把你操作系统的用户 切换到root用户中去才能登录</li>
+</ul>
+<p>现在我们已经清楚了问题所在,近接下来改root用户对应的plugin就可以了</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select version();</span><br><span class="line">+-------------------------+</span><br><span class="line">| version()               |</span><br><span class="line">+-------------------------+</span><br><span class="line">| 8.0.23-0ubuntu0.20.04.1 |</span><br><span class="line">+-------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; update mysql.user set plugin =&#x27;caching_sha2_password&#x27; where user=&#x27;root&#x27;;</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br><span class="line">Rows matched: 1  Changed: 1  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select user,host,authentication_string,plugin from mysql.user where user=&#x27;root&#x27;;</span><br><span class="line">+------+-----------+-----------------------+-----------------------+</span><br><span class="line">| user | host      | authentication_string | plugin                |</span><br><span class="line">+------+-----------+-----------------------+-----------------------+</span><br><span class="line">| root | localhost |                       | caching_sha2_password |</span><br><span class="line">+------+-----------+-----------------------+-----------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这里改成<font color="red">caching_sha2_password</font>这个插件是mysql官方默认的auth插件使用的这个,接下来使用<code>shell mysql -u root -p</code><br>回车就可以直接进入数据库了,到此数据库的root用户密码修改完成了<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; alter user &#x27;root&#x27;@&#x27;localhost&#x27; identified by &#x27;123456&#x27;;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br></pre></td></tr></table></figure><br>这里将root用户的密码设置为123456</p>
+<h2 id="密码管理"><a href="#密码管理" class="headerlink" title="密码管理"></a>密码管理</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select version();</span><br><span class="line">+-------------------------+</span><br><span class="line">| version()               |</span><br><span class="line">+-------------------------+</span><br><span class="line">| 8.0.23-0ubuntu0.20.04.1 |</span><br><span class="line">+-------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show variables like &#x27;password%&#x27;;</span><br><span class="line">+--------------------------+-------+</span><br><span class="line">| Variable_name            | Value |</span><br><span class="line">+--------------------------+-------+</span><br><span class="line">| password_history         | 0     |</span><br><span class="line">| password_require_current | OFF   |</span><br><span class="line">| password_reuse_interval  | 0     |</span><br><span class="line">+--------------------------+-------+</span><br><span class="line">3 rows in set (0.01 sec)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>password_history = 3, 新密码不能和前面三次的密码相同<br>password_require_current = ON, 默认是OFF,开启后用户修改密码时需要提供当前的密码,root用户不需要提供<br>password_reuse_interval = 60, 新密码不能和前面60天内使用的密码相同</p>
+<h2 id="密码策略"><a href="#密码策略" class="headerlink" title="密码策略"></a>密码策略</h2><p>mysql 密码策略相关参数：</p>
+<ul>
+<li>validate_password_check_user_name 设置为ON的时候表示能将密码设置成当前用户名</li>
+<li>validate_password_length 固定密码的总长度；</li>
+<li>validate_password_dictionary_file 指定密码验证的文件路径；</li>
+<li>validate_password_mixed_case_count 整个密码中至少要包含大/小写字母的总个数；</li>
+<li>validate_password_number_count 整个密码中至少要包含阿拉伯数字的个数；</li>
+<li>validate_password_special_char_count 整个密码中至少要包含特殊字符的个数；</li>
+<li>validate_password_policy 指定密码的强度验证等级，默认为 MEDIUM；<br>关于 validate_password.policy 的取值：<br>0/LOW：只验证长度；<br>1/MEDIUM：验证长度、数字、大小写、特殊字符；<br>2/STRONG：验证长度、数字、大小写、特殊字符、字典文件；</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#x27;validate_password%&#x27;;</span><br><span class="line">Empty set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<p>当前环境下mysql的默认密码策略都是未设置,出现这种返回结果是validate这个插件没有安装导致的,参考下一节的插件管理,安装好插件后再次查看<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show plugins;</span><br><span class="line">+---------------------------------+----------+--------------------+----------------------+---------+</span><br><span class="line">| Name                            | Status   | Type               | Library              | License |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------------+---------+</span><br><span class="line">| binlog                          | ACTIVE   | STORAGE ENGINE     | NULL                 | GPL     |</span><br><span class="line">********************************************************************************</span><br><span class="line">| validate_password               | ACTIVE   | VALIDATE PASSWORD  | validate_password.so | GPL     |</span><br><span class="line">| auth_socket                     | ACTIVE   | AUTHENTICATION     | auth_socket.so       | GPL     |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------------+---------+</span><br><span class="line">46 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure><br>现在可以看到validate_password这个插件成功加载了</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#x27;validate_password%&#x27;;</span><br><span class="line">+--------------------------------------+--------+</span><br><span class="line">| Variable_name                        | Value  |</span><br><span class="line">+--------------------------------------+--------+</span><br><span class="line">| validate_password_check_user_name    | ON     |</span><br><span class="line">| validate_password_dictionary_file    |        |</span><br><span class="line">| validate_password_length             | 8      |</span><br><span class="line">| validate_password_mixed_case_count   | 1      |</span><br><span class="line">| validate_password_number_count       | 1      |</span><br><span class="line">| validate_password_policy             | MEDIUM |</span><br><span class="line">| validate_password_special_char_count | 1      |</span><br><span class="line">+--------------------------------------+--------+</span><br><span class="line">7 rows in set (0.00 sec)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="插件管理"><a href="#插件管理" class="headerlink" title="插件管理"></a>插件管理</h2><p>查看系统已经加载的插件<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show plugins;</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">| Name                            | Status   | Type               | Library        | License |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">| binlog                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| mysql_native_password           | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| sha256_password                 | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| caching_sha2_password           | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| sha2_cache_cleaner              | ACTIVE   | AUDIT              | NULL           | GPL     |</span><br><span class="line">| CSV                             | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| MEMORY                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| InnoDB                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| INNODB_TRX                      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP                      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_RESET                | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMPMEM                   | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMPMEM_RESET             | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_PER_INDEX            | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_PER_INDEX_RESET      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_PAGE              | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_PAGE_LRU          | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_POOL_STATS        | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TEMP_TABLE_INFO          | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_METRICS                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_DEFAULT_STOPWORD      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_DELETED               | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_BEING_DELETED         | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_CONFIG                | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_INDEX_CACHE           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_INDEX_TABLE           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLES                   | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLESTATS               | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_INDEXES                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLESPACES              | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_COLUMNS                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_VIRTUAL                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CACHED_INDEXES           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_SESSION_TEMP_TABLESPACES | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| MyISAM                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| MRG_MYISAM                      | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| PERFORMANCE_SCHEMA              | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| TempTable                       | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| ARCHIVE                         | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| BLACKHOLE                       | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| FEDERATED                       | DISABLED | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| ngram                           | ACTIVE   | FTPARSER           | NULL           | GPL     |</span><br><span class="line">| mysqlx_cache_cleaner            | ACTIVE   | AUDIT              | NULL           | GPL     |</span><br><span class="line">| mysqlx                          | ACTIVE   | DAEMON             | NULL           | GPL     |</span><br><span class="line">| auth_socket                     | ACTIVE   | AUTHENTICATION     | auth_socket.so | GPL     |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">45 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure></p>
+<p>查看插件加载目录<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#x27;plugin_dir&#x27;;</span><br><span class="line">+---------------+------------------------+</span><br><span class="line">| Variable_name | Value                  |</span><br><span class="line">+---------------+------------------------+</span><br><span class="line">| plugin_dir    | /usr/lib/mysql/plugin/ |</span><br><span class="line">+---------------+------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure></p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><font color="red">安装的插件必须要已经存在于数据库的插件配置目录中</font>
+
+<p>第一种：通过配置文件在启动时加载插件, 需要在mysqld配置项下面添加</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">xiaoxiao@xiaoxiao:~$ sudo service mysql stop</span><br></pre></td></tr></table></figure>
+<p>修改mysqld配置项, 文件位置 <strong>/etc/mysql/mysql.conf.d/mysqld.cnf</strong><br>[mysqld]<br>plugin-load-add = validate_password.so<br>validate-password = FORCE_PLUS_PERMANENT<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">xiaoxiao@xiaoxiao:~$ sudo service mysql start</span><br><span class="line">xiaoxiao@xiaoxiao:~$ ps -ef | grep mysql | grep -v &quot;grep&quot;</span><br><span class="line">mysql     828802       1 14 16:56 ?        00:00:00 /usr/sbin/mysqld</span><br></pre></td></tr></table></figure><br>登录到数据库中运行 <code>&gt; show plugins;</code> 就可以看到validate_password这个插件已经成功加载了</p>
+<p>第二种 ：在MySQL运行时注册插件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> install plugin validate_password soname <span class="string">&#x27;validate_password.so&#x27;</span>;</span></span><br></pre></td></tr></table></figure>
+<p>validate_password.so 这个后缀文件根据你使用的操作系统来决定的</p>
+<h3 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; uninstall plugin validate_password;</span><br><span class="line">&gt; show plugins;</span><br></pre></td></tr></table></figure>
+<h2 id="远程连接"><a href="#远程连接" class="headerlink" title="远程连接"></a>远程连接</h2><p>第一处需要修改的地方是MySQL配置文件项 <strong>bind-address</strong>，这个是MySQL服务的监听地址，默认是监听的本地</p>
+<p>第二处是配置一个远程登录的连接用户</p>
+<p>接下来是操作<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo vim /etc/mysql/mysql.conf.d/mysqld.conf</span><br><span class="line">bind-address = 0.0.0.0</span><br></pre></td></tr></table></figure><br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; create user &#x27;remote&#x27;@&#x27;192.168.56.%&#x27; identified by &#x27;remote_pass&#x27;;</span><br><span class="line">&gt; grant all privileges on *.* to &#x27;remote&#x27;@&#x27;192.168.56.%&#x27;;</span><br><span class="line">&gt; flush privileges ;</span><br></pre></td></tr></table></figure></p>
+<hr>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>psr</title>
     <url>/article/psr/</url>
     <content><![CDATA[<p><a href="https://laravel-china.org/docs/psr" title="PSR-Laravel_china">参考</a></p>
@@ -5857,60 +5911,6 @@ A:  主机2需要保证这段时间的响应数据正确的发送给主机1，�
       <tags>
         <tag>php</tag>
         <tag>psr</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>mysql知识汇总篇</title>
-    <url>/article/mysql-knowledge/</url>
-    <content><![CDATA[<h2 id="修改root密码"><a href="#修改root密码" class="headerlink" title="修改root密码"></a>修改root密码</h2><p>通过<strong>apt-get install</strong> 方式安装完MySQL后，在 <strong>/etc/mysql/</strong> 目录下有一个<font color="red">debian.cnf</font>配置文件,文件内容是一个配置好权限的登录用户和密码;<br>不知道root用户密码，需要用这个配置好的用户名和密码登录到数据库中去修改root的用户名和密码</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo cat /etc/mysql/debian.cnf</span><br><span class="line">mysql -u debian-sys-maint -p</span><br></pre></td></tr></table></figure>
-<p>好了,已经可以成功进入数据库了,接下来查看一下root用户的配置项<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select user,host, authentication_string from mysql.user where user=&#x27;root&#x27;;</span><br><span class="line">+------+-----------+-----------------------+</span><br><span class="line">| user | host      | authentication_string |</span><br><span class="line">+------+-----------+-----------------------+</span><br><span class="line">| root | localhost |                       |</span><br><span class="line">+------+-----------+-----------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure><br>发现密码的那一项是空的,第一反应是不是在终端输入 <code>msyql -u root -p</code> 然后回车,心里美滋滋的以为可以用root用户登录了,但是现实很残酷啊,<br>终端会给你提示验证错误,是不是一脸蒙蔽了,手动狗头,mysql中看一个用户的配置除了上面的查看项还需要知道有一个plugin字段,这个里面放置了当前用户的加密插件,mysql内置了很多的插件<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show plugins;</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">| Name                            | Status   | Type               | Library        | License |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">| binlog                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| mysql_native_password           | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| sha256_password                 | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| caching_sha2_password           | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| sha2_cache_cleaner              | ACTIVE   | AUDIT              | NULL           | GPL     |</span><br><span class="line">| CSV                             | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| MEMORY                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| InnoDB                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| INNODB_TRX                      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP                      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_RESET                | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMPMEM                   | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMPMEM_RESET             | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_PER_INDEX            | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_PER_INDEX_RESET      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_PAGE              | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_PAGE_LRU          | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_POOL_STATS        | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TEMP_TABLE_INFO          | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_METRICS                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_DEFAULT_STOPWORD      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_DELETED               | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_BEING_DELETED         | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_CONFIG                | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_INDEX_CACHE           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_INDEX_TABLE           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLES                   | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLESTATS               | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_INDEXES                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLESPACES              | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_COLUMNS                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_VIRTUAL                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CACHED_INDEXES           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_SESSION_TEMP_TABLESPACES | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| MyISAM                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| MRG_MYISAM                      | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| PERFORMANCE_SCHEMA              | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| TempTable                       | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| ARCHIVE                         | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| BLACKHOLE                       | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| FEDERATED                       | DISABLED | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| ngram                           | ACTIVE   | FTPARSER           | NULL           | GPL     |</span><br><span class="line">| mysqlx_cache_cleaner            | ACTIVE   | AUDIT              | NULL           | GPL     |</span><br><span class="line">| mysqlx                          | ACTIVE   | DAEMON             | NULL           | GPL     |</span><br><span class="line">| auth_socket                     | ACTIVE   | AUTHENTICATION     | auth_socket.so | GPL     |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">45 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure><br>我们再一次查看root用户的插件</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select user,host,authentication_string,plugin from mysql.user where user=&#x27;root&#x27;;</span><br><span class="line">+------------------+-----------+------------------------------------------------------------------------+-----------------------+</span><br><span class="line">| user             | host      | authentication_string                                                  | plugin                |</span><br><span class="line">+------------------+-----------+------------------------------------------------------------------------+-----------------------+</span><br><span class="line">| root             | localhost |                                                                        | auth_socket           |</span><br><span class="line">+------------------+-----------+------------------------------------------------------------------------+-----------------------+</span><br></pre></td></tr></table></figure>
-<p>通过以上的SQL结果我们可以看出 root用户的密码验证插件使用的auth_socket方式,简单地来介绍一个这个插件：</p>
-<ul>
-<li>第一点：这种验证方式不需要输入密码,即使你好奇输入了密码它也不会进行验证</li>
-<li>第二点：这种只能通过uninx的socket方式登录,什么意思呢,就是说只能本地连接,不支持远程连接,而且这种方式在用户登录数据库之前已经通过了操作 系统层级的安全验证</li>
-<li>第三点：当前要登录数据库的用户名和操作系统的用户名一致.举个例子来说,在这个场景下你要登录数据库的root用户你就必须把你操作系统的用户 切换到root用户中去才能登录</li>
-</ul>
-<p>现在我们已经清楚了问题所在,近接下来改root用户对应的plugin就可以了</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select version();</span><br><span class="line">+-------------------------+</span><br><span class="line">| version()               |</span><br><span class="line">+-------------------------+</span><br><span class="line">| 8.0.23-0ubuntu0.20.04.1 |</span><br><span class="line">+-------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; update mysql.user set plugin =&#x27;caching_sha2_password&#x27; where user=&#x27;root&#x27;;</span><br><span class="line">Query OK, 1 row affected (0.00 sec)</span><br><span class="line">Rows matched: 1  Changed: 1  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select user,host,authentication_string,plugin from mysql.user where user=&#x27;root&#x27;;</span><br><span class="line">+------+-----------+-----------------------+-----------------------+</span><br><span class="line">| user | host      | authentication_string | plugin                |</span><br><span class="line">+------+-----------+-----------------------+-----------------------+</span><br><span class="line">| root | localhost |                       | caching_sha2_password |</span><br><span class="line">+------+-----------+-----------------------+-----------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>这里改成<font color="red">caching_sha2_password</font>这个插件是mysql官方默认的auth插件使用的这个,接下来使用<code>shell mysql -u root -p</code><br>回车就可以直接进入数据库了,到此数据库的root用户密码修改完成了<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; alter user &#x27;root&#x27;@&#x27;localhost&#x27; identified by &#x27;123456&#x27;;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br></pre></td></tr></table></figure><br>这里将root用户的密码设置为123456</p>
-<h2 id="密码管理"><a href="#密码管理" class="headerlink" title="密码管理"></a>密码管理</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; select version();</span><br><span class="line">+-------------------------+</span><br><span class="line">| version()               |</span><br><span class="line">+-------------------------+</span><br><span class="line">| 8.0.23-0ubuntu0.20.04.1 |</span><br><span class="line">+-------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; show variables like &#x27;password%&#x27;;</span><br><span class="line">+--------------------------+-------+</span><br><span class="line">| Variable_name            | Value |</span><br><span class="line">+--------------------------+-------+</span><br><span class="line">| password_history         | 0     |</span><br><span class="line">| password_require_current | OFF   |</span><br><span class="line">| password_reuse_interval  | 0     |</span><br><span class="line">+--------------------------+-------+</span><br><span class="line">3 rows in set (0.01 sec)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>password_history = 3, 新密码不能和前面三次的密码相同<br>password_require_current = ON, 默认是OFF,开启后用户修改密码时需要提供当前的密码,root用户不需要提供<br>password_reuse_interval = 60, 新密码不能和前面60天内使用的密码相同</p>
-<h2 id="密码策略"><a href="#密码策略" class="headerlink" title="密码策略"></a>密码策略</h2><p>mysql 密码策略相关参数：</p>
-<ul>
-<li>validate_password_check_user_name 设置为ON的时候表示能将密码设置成当前用户名</li>
-<li>validate_password_length 固定密码的总长度；</li>
-<li>validate_password_dictionary_file 指定密码验证的文件路径；</li>
-<li>validate_password_mixed_case_count 整个密码中至少要包含大/小写字母的总个数；</li>
-<li>validate_password_number_count 整个密码中至少要包含阿拉伯数字的个数；</li>
-<li>validate_password_special_char_count 整个密码中至少要包含特殊字符的个数；</li>
-<li>validate_password_policy 指定密码的强度验证等级，默认为 MEDIUM；<br>关于 validate_password.policy 的取值：<br>0/LOW：只验证长度；<br>1/MEDIUM：验证长度、数字、大小写、特殊字符；<br>2/STRONG：验证长度、数字、大小写、特殊字符、字典文件；</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#x27;validate_password%&#x27;;</span><br><span class="line">Empty set (0.00 sec)</span><br></pre></td></tr></table></figure>
-<p>当前环境下mysql的默认密码策略都是未设置,出现这种返回结果是validate这个插件没有安装导致的,参考下一节的插件管理,安装好插件后再次查看<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show plugins;</span><br><span class="line">+---------------------------------+----------+--------------------+----------------------+---------+</span><br><span class="line">| Name                            | Status   | Type               | Library              | License |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------------+---------+</span><br><span class="line">| binlog                          | ACTIVE   | STORAGE ENGINE     | NULL                 | GPL     |</span><br><span class="line">********************************************************************************</span><br><span class="line">| validate_password               | ACTIVE   | VALIDATE PASSWORD  | validate_password.so | GPL     |</span><br><span class="line">| auth_socket                     | ACTIVE   | AUTHENTICATION     | auth_socket.so       | GPL     |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------------+---------+</span><br><span class="line">46 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure><br>现在可以看到validate_password这个插件成功加载了</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#x27;validate_password%&#x27;;</span><br><span class="line">+--------------------------------------+--------+</span><br><span class="line">| Variable_name                        | Value  |</span><br><span class="line">+--------------------------------------+--------+</span><br><span class="line">| validate_password_check_user_name    | ON     |</span><br><span class="line">| validate_password_dictionary_file    |        |</span><br><span class="line">| validate_password_length             | 8      |</span><br><span class="line">| validate_password_mixed_case_count   | 1      |</span><br><span class="line">| validate_password_number_count       | 1      |</span><br><span class="line">| validate_password_policy             | MEDIUM |</span><br><span class="line">| validate_password_special_char_count | 1      |</span><br><span class="line">+--------------------------------------+--------+</span><br><span class="line">7 rows in set (0.00 sec)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="插件管理"><a href="#插件管理" class="headerlink" title="插件管理"></a>插件管理</h2><p>查看系统已经加载的插件<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show plugins;</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">| Name                            | Status   | Type               | Library        | License |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">| binlog                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| mysql_native_password           | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| sha256_password                 | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| caching_sha2_password           | ACTIVE   | AUTHENTICATION     | NULL           | GPL     |</span><br><span class="line">| sha2_cache_cleaner              | ACTIVE   | AUDIT              | NULL           | GPL     |</span><br><span class="line">| CSV                             | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| MEMORY                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| InnoDB                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| INNODB_TRX                      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP                      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_RESET                | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMPMEM                   | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMPMEM_RESET             | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_PER_INDEX            | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CMP_PER_INDEX_RESET      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_PAGE              | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_PAGE_LRU          | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_BUFFER_POOL_STATS        | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TEMP_TABLE_INFO          | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_METRICS                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_DEFAULT_STOPWORD      | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_DELETED               | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_BEING_DELETED         | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_CONFIG                | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_INDEX_CACHE           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_FT_INDEX_TABLE           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLES                   | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLESTATS               | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_INDEXES                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_TABLESPACES              | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_COLUMNS                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_VIRTUAL                  | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_CACHED_INDEXES           | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| INNODB_SESSION_TEMP_TABLESPACES | ACTIVE   | INFORMATION SCHEMA | NULL           | GPL     |</span><br><span class="line">| MyISAM                          | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| MRG_MYISAM                      | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| PERFORMANCE_SCHEMA              | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| TempTable                       | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| ARCHIVE                         | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| BLACKHOLE                       | ACTIVE   | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| FEDERATED                       | DISABLED | STORAGE ENGINE     | NULL           | GPL     |</span><br><span class="line">| ngram                           | ACTIVE   | FTPARSER           | NULL           | GPL     |</span><br><span class="line">| mysqlx_cache_cleaner            | ACTIVE   | AUDIT              | NULL           | GPL     |</span><br><span class="line">| mysqlx                          | ACTIVE   | DAEMON             | NULL           | GPL     |</span><br><span class="line">| auth_socket                     | ACTIVE   | AUTHENTICATION     | auth_socket.so | GPL     |</span><br><span class="line">+---------------------------------+----------+--------------------+----------------+---------+</span><br><span class="line">45 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure></p>
-<p>查看插件加载目录<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like &#x27;plugin_dir&#x27;;</span><br><span class="line">+---------------+------------------------+</span><br><span class="line">| Variable_name | Value                  |</span><br><span class="line">+---------------+------------------------+</span><br><span class="line">| plugin_dir    | /usr/lib/mysql/plugin/ |</span><br><span class="line">+---------------+------------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure></p>
-<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><font color="red">安装的插件必须要已经存在于数据库的插件配置目录中</font>
-
-<p>第一种：通过配置文件在启动时加载插件, 需要在mysqld配置项下面添加</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">xiaoxiao@xiaoxiao:~$ sudo service mysql stop</span><br></pre></td></tr></table></figure>
-<p>修改mysqld配置项, 文件位置 <strong>/etc/mysql/mysql.conf.d/mysqld.cnf</strong><br>[mysqld]<br>plugin-load-add = validate_password.so<br>validate-password = FORCE_PLUS_PERMANENT<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">xiaoxiao@xiaoxiao:~$ sudo service mysql start</span><br><span class="line">xiaoxiao@xiaoxiao:~$ ps -ef | grep mysql | grep -v &quot;grep&quot;</span><br><span class="line">mysql     828802       1 14 16:56 ?        00:00:00 /usr/sbin/mysqld</span><br></pre></td></tr></table></figure><br>登录到数据库中运行 <code>&gt; show plugins;</code> 就可以看到validate_password这个插件已经成功加载了</p>
-<p>第二种 ：在MySQL运行时注册插件</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;</span><span class="bash"> install plugin validate_password soname <span class="string">&#x27;validate_password.so&#x27;</span>;</span></span><br></pre></td></tr></table></figure>
-<p>validate_password.so 这个后缀文件根据你使用的操作系统来决定的</p>
-<h3 id="卸载"><a href="#卸载" class="headerlink" title="卸载"></a>卸载</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; uninstall plugin validate_password;</span><br><span class="line">&gt; show plugins;</span><br></pre></td></tr></table></figure>
-<h2 id="远程连接"><a href="#远程连接" class="headerlink" title="远程连接"></a>远程连接</h2><p>第一处需要修改的地方是MySQL配置文件项 <strong>bind-address</strong>，这个是MySQL服务的监听地址，默认是监听的本地</p>
-<p>第二处是配置一个远程登录的连接用户</p>
-<p>接下来是操作<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo vim /etc/mysql/mysql.conf.d/mysqld.conf</span><br><span class="line">bind-address = 0.0.0.0</span><br></pre></td></tr></table></figure><br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; create user &#x27;remote&#x27;@&#x27;192.168.56.%&#x27; identified by &#x27;remote_pass&#x27;;</span><br><span class="line">&gt; grant all privileges on *.* to &#x27;remote&#x27;@&#x27;192.168.56.%&#x27;;</span><br><span class="line">&gt; flush privileges ;</span><br></pre></td></tr></table></figure></p>
-<hr>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
